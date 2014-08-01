@@ -11,6 +11,7 @@ public class Installation {
 	private String duración;
 	private String costemediohora;
 	private String user;
+	
 	public Installation(String codigo, String nombre, String direccion,
 			String localidad, String pais, String precio, String tipo,
 			String duración, String costemediohora,String user) {
@@ -79,6 +80,11 @@ public class Installation {
 	public void setCostemediohora(String costemediohora) {
 		this.costemediohora = costemediohora;
 	}
-	
+	public String getUser() {
+		return user;
+	}
+	public void setUser(String user) {
+		this.user = user;
+	}
 
 }

@@ -14,6 +14,7 @@
 <table><tr>
 <td>${instalaciones }</td>
 </tr>
+<tr>
 </table>
 </td></tr>
 <tr><td><a href="recursos.html">Volver</a>

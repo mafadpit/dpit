@@ -13,5 +13,6 @@ Nombre: <input type="text" name="material" value=${material } />
 Utilidad: <input type="text" name="utilidad" value=${utilidad } />
 Precio/Unidad: <input type="text" name="precio" value=${precio } />
 <input type="Submit" value="Guardar"/>
+</form>
 </body>
 </html>

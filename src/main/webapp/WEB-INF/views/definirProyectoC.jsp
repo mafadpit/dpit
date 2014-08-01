@@ -7,11 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-<table>
-<tr bgcolor="blue"><td ><font color="white">Bienvenido:${nombre }/ <a href="cerrar.html">Cerrar</a></font></td></tr>
-<tr><td>${proyectos }</td></tr>
-<tr bgcolor="blue"><td><a href="nuevoProyecto.html">Nuevo Proyecto</a></td></tr>
-<tr><td><a href="entorno.html">Volver</a></td></tr>
-</table>
+${categorias }
 </body>
 </html>

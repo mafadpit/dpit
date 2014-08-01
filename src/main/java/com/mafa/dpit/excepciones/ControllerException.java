@@ -1,5 +1,6 @@
 package com.mafa.dpit.excepciones;
 
+@SuppressWarnings("serial")
 public class ControllerException extends Exception{
 String msg;
 

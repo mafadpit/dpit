@@ -1,9 +1,12 @@
 package com.mafa.dpit;
 
+
 import com.mafa.dpit.excepciones.AccessException;
 import com.mafa.dpit.excepciones.ControllerException;
+import com.mafa.dpit.util.Customer;
 import com.mafa.dpit.util.Installation;
 import com.mafa.dpit.util.Material;
+import com.mafa.dpit.util.Receipt;
 import com.mafa.dpit.util.Support;
 import com.mafa.dpit.util.Worker;
 
@@ -95,7 +98,6 @@ public class ResourceManager {
 			data.update("\"Trabajadores\"", atributos, valores, indice);
 			System.out.println("DATA 1");
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			return e1.getMessage();
 		}
 		return "actualizado";
@@ -110,7 +112,7 @@ public class ResourceManager {
 		try {
 			return data.findWorker("select * from \"Trabajadores\" where codigo=?", id);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+		
 			return null;
 		}
 	}
@@ -141,7 +143,7 @@ public class ResourceManager {
 		try {
 			data.create("Trabajadores",valores);
 		} catch (AccessException e) {
-			// TODO Auto-generated catch block
+	
 			throw new ControllerException(e.getMsg());
 		}
 	}
@@ -150,8 +152,7 @@ public class ResourceManager {
 		try {
 			return data.autoCode(tabla);
 		} catch (AccessException e) {
-			// TODO Auto-generated catch block
-			throw new ControllerException(e.getMsg());
+				throw new ControllerException(e.getMsg());
 		}
 		
 	}
@@ -177,10 +178,10 @@ public class ResourceManager {
 			throw new ControllerException(e.getMsg());
 		}
 	}
-	public Support accessSupport(String id) {
+	public Support accessSupport(String id,String user) {
 		DataLayer data= new DataLayer();
 		try {
-			return data.findSupport("select * from soportes where codigo=?", id);
+			return data.findSupport("select * from soportes where codigo=? AND codigo_user=?", id,user);
 		} catch (Exception e) {
 			return null;
 		}
@@ -234,7 +235,7 @@ public class ResourceManager {
 		data.update("soportes", atributos, valores, codigo);
 		System.out.println("RM");	
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
+	
 			throw new ControllerException( e1.getMessage());
 		}		
 	}
@@ -260,10 +261,10 @@ public class ResourceManager {
 			throw new ControllerException(e.getMsg());
 		}
 	}
-	public Material accessMaterial(String id) {
+	public Material accessMaterial(String id,String user) {
 		DataLayer data= new DataLayer();
 		try {
-			return data.findMaterial("select * from materiales where codigo=?", id);
+			return data.findMaterial("select * from materiales where codigo=? AND codigo_user=?", id,user);
 		} catch (Exception e) {
 			return null;
 		}
@@ -302,7 +303,7 @@ public class ResourceManager {
 		data.update("materiales", atributos, valores, codigo);
 	
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
+
 			throw new ControllerException( e1.getMessage());
 		}		
 	}
@@ -328,12 +329,20 @@ public class ResourceManager {
 			throw new ControllerException(e.getMsg());
 		}
 	}
-	public Installation accessInstallation(String id,String user) {
+	public Installation accessInstallation(String id,String user) throws ControllerException {
 		DataLayer data= new DataLayer();
 		try {
-			return data.findInstallation("select * from instalaciones where codigo=? and user=?", id,user);
-		} catch (Exception e) {
-			return null;
+			return data.findInstallation("SELECT * FROM instalaciones where codigo=? and codigo_user=?;",id,user);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+	}
+	public Receipt accessReceipt(String id) throws ControllerException {
+		DataLayer data= new DataLayer();
+		try {
+			return data.findReceipt("SELECT * FROM recibos where codigo=?;",id);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
 		}
 	}
 	public void createInstallation(Installation s,String user) throws ControllerException{
@@ -385,20 +394,88 @@ public class ResourceManager {
 		data.update("instalaciones", atributos, valores, codigo);
 	
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
+			
 			throw new ControllerException( e1.getMessage());
 		}		
 	}
+	// RECIBOS
+	
 	public String showReceipt(String codigo) throws ControllerException{
-		String result="<table><tr><td>Servicio</td><td>Importe</td></tr>";
+		String result="<table><tr bgcolor=\"lightgreen\"><td></td><td>Servicio</td><td>Importe</td></tr>";
 		DataLayer data=new DataLayer();
+		System.out.println(codigo);
 		try {
-			result+=data.showList("recibos", "servicio,importe ", codigo);
+			result+=data.showListInstallation("recibos", "codigo, servicio,importe,codigo_instalacion ", codigo);
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}
-		result+="</table>";
+		result+="<tr bgcolor=\"lightgreen\"><td colspan=3><a href=\"nuevoRecibo.html?id="+codigo+" \" >Nuevo Recibo</a></td></tr></table>";
 		return result;
+	}
+	
+	
+	
+	public void createReceipt(String servicio,String importe,String codigo_instalacion)throws ControllerException{
+		DataLayer data= new DataLayer();
+		String[] valores= new String[4];
+		try {
+			valores[0]=data.autoCode("recibos");
+			valores[1]=servicio;
+			valores[2]=importe;
+			valores[3]=codigo_instalacion;
+			data.create("recibos", valores);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+		
+	}
+	public void deleteReceipt(String codigo) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try {
+			data.delete("recibos","codigo",codigo);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	// CLIENTES
+	public void createCustomer(Customer c)throws ControllerException {
+		DataLayer data= new DataLayer();
+		String[] valores= new String[8];
+		try {
+			valores[0]=c.getCif();
+			valores[1]=c.getNombre();
+			valores[2]=c.getDireccion();
+			valores[3]=c.getLocalidad();
+			valores[4]=c.getPais();
+			valores[5]=c.getTelefono();
+			valores[6]=c.getEstado();
+			valores[7]=c.getCodigo_user();
+			data.create("clientes", valores);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public String showCustomer(String dni,String acceso) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String result="";
+		try{
+		result+=data.showList("select * from clientes where codigo_user=? or estado='Publico';",dni,4,acceso);
+		}catch(AccessException e){
+			throw new ControllerException(e.getMsg());
+		}
+		return result;
+	}
+	public Customer accessCustomer(String id) {
+		DataLayer data= new DataLayer();
+		try {
+			return data.findCustomer("select * from clientes where cif=?", id);
+		} catch (AccessException e) {
+		
+			return null;
+		}
 	}
 
 }

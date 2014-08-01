@@ -11,7 +11,7 @@
 Nombre: <input type="text" name="soporte" value="" />
 Función: <input type="text" name="funcion" value="" />
 Tipo: 
-<select name="tipo" value="Hardware">
+<select name="tipo">
 <option>Hardware</option>
 <option>Software</option>
 <option>Comunicación</option>

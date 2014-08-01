@@ -7,11 +7,12 @@
 <title>Insert title here</title>
 </head>
 <body>
-<table>
-<tr bgcolor="blue"><td ><font color="white">Bienvenido:${nombre }/ <a href="cerrar.html">Cerrar</a></font></td></tr>
-<tr><td>${proyectos }</td></tr>
-<tr bgcolor="blue"><td><a href="nuevoProyecto.html">Nuevo Proyecto</a></td></tr>
-<tr><td><a href="entorno.html">Volver</a></td></tr>
-</table>
+<h1>Nuevo Recibo</h1>
+<form action="guardarRecibo.html" method="POST">
+Instalación: <input type="text" name="instalacion" value=${instalacion } /><br/>
+Servicio: <input type="text" name="servicio" value="" /><br/>
+Importe: <input type="text" name="importe" value="" />
+<input type="Submit" value="Guardar"/>
+</form>
 </body>
 </html>

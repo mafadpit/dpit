@@ -8,6 +8,7 @@
 </head>
 <body>
 <form action="guardarInstalacion.html" method="POST">
+Codigo: <input type="text" name="codigo" value=${codigo } />
 Nombre: <input type="text" name="instalacion" value=${instalacion } />
 Dirección: <input type="text" name="direccion" value=${direccion } />
 Localidad: <input type="text" name="localidad" value=${localidad } />
@@ -25,5 +26,6 @@ Coste Medio Hora: <input type="text" name="costemediohora" value=${costemediohor
 </form>
 Recibos:
 ${recibos }
+<br />
 </body>
 </html>

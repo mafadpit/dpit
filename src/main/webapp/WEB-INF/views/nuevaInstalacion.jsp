@@ -13,7 +13,7 @@ Dirección: <input type="text" name="direccion" value="" />
 Localidad: <input type="text" name="localidad" value="" />
 Pais: <input type="text" name="pais" value="" />
 Tipo: 
-<select name="tipo" value="Oficina">
+<select name="tipo" >
 <option>Oficina</option>
 <option>Laboracitorio</option>
 <option>Otros</option>

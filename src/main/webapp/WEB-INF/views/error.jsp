@@ -4,10 +4,14 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>DPIT - Error</title>
 </head>
 <body>
-<h1>Se ha producido un error</h1>
-<a href="home.html">Volver</a>
+<table><tr>
+<td><h1>Se ha producido un error</h1>
+<br />${error }
+<br /><a href="home.html">Volver</a></td>
+</tr></table>
+
 </body>
 </html>

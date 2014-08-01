@@ -1,6 +1,6 @@
 package com.mafa.dpit;
 
-import java.io.IOException;
+import java.security.AccessController;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -134,7 +134,8 @@ public class DataLayer {
 			sql+=" "+atributos[i]+"='"+valores[i]+"', ";
 		}
 		sql+=" "+atributos[atributos.length-1]+"='"+valores[atributos.length-1]+"'";
-		sql+="where codigo='"+indice+"';";
+		sql+=" where codigo='"+indice+"';";
+		System.out.println(sql);
 		try{
 			
 			Class.forName(driver);
@@ -187,7 +188,7 @@ public class DataLayer {
 	 * @throws AccessException
 	 */
 	public String autoCode(String tabla) throws AccessException{
-		String sql="select * from \""+tabla+"\" order by codigo desc";
+		String sql="select count(codigo) from \""+tabla+"\"";
 		String resultado;
 		long result;
 		try{
@@ -199,7 +200,7 @@ public class DataLayer {
 			resultado=rs.getString(1);
 			result=Long.parseLong(resultado);
 			result+=1;
-			resultado=""+result;
+			resultado=String.valueOf(result);
 			}else{
 				resultado="1";
 			}
@@ -243,13 +244,14 @@ public class DataLayer {
 		}
 		return result;
 	}
-	public Support findSupport(String sql,String support) throws Exception{
+	public Support findSupport(String sql,String support,String user) throws Exception{
 		Support result;
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
 			PreparedStatement smt=con.prepareStatement(sql);
 			smt.setString(1, support);
+			smt.setString(2, user);
 			ResultSet rs=smt.executeQuery();
 			rs.next();
 			result = new Support(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9));
@@ -264,13 +266,14 @@ public class DataLayer {
 		}
 		return result;
 	}
-	public Material findMaterial(String sql, String material) throws AccessException{
+	public Material findMaterial(String sql, String material,String user) throws AccessException{
 		Material result=null;
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
 			PreparedStatement smt=con.prepareStatement(sql);
 			smt.setString(1, material);
+			smt.setString(2, user);
 			ResultSet rs=smt.executeQuery();
 			rs.next();
 			result = new Material(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4));
@@ -286,22 +289,20 @@ public class DataLayer {
 		}
 		return result;
 	}
-	public Installation findInstallation(String sql, String instalacion,String user) throws AccessException{
+	public Installation findInstallation(String sql,String instalacion,String user) throws AccessException{
 		Installation result=null;
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
 			PreparedStatement smt=con.prepareStatement(sql);
 			smt.setString(1, instalacion);
-			smt.setString(1, user);
+			smt.setString(2, user);
 			ResultSet rs=smt.executeQuery();
 			rs.next();
-			result = new Installation(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4),rs.getString(5), rs.getString(6),rs.getString(7), rs.getString(8),rs.getString(9),user);
-			ñ
+			result = new Installation(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4),rs.getString(5), rs.getString(6),rs.getString(7), rs.getString(8),rs.getString(9),rs.getString(10));
 			rs.close();
 			smt.close();
 			con.close();
-			
 		}catch(ClassNotFoundException e){
 			throw new AccessException("No ha detectado el Driver");
 		}catch(SQLException ee){
@@ -310,7 +311,28 @@ public class DataLayer {
 		}
 		return result;
 	}
-	public String showList(String tabla, String columnas, String instalacion) throws AccessException{
+	public Receipt findReceipt(String sql,String receipt) throws AccessException{
+		Receipt result;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, receipt);
+			ResultSet rs=smt.executeQuery();
+			rs.next();
+			result = new Receipt(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4));
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+			throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+		}
+		return result;
+	}
+	public String showListInstallation(String tabla, String columnas, String instalacion) throws AccessException{
 		String result="";
 		String sql="select "+columnas+"  from "+tabla+" where codigo_instalacion=?";
 		try{
@@ -320,7 +342,7 @@ public class DataLayer {
 			smt.setString(1, instalacion);
 			ResultSet rs=smt.executeQuery();
 			while(rs.next()){
-				result+="<tr><td>"+rs.getString(1)+"</td><td>"+rs.getString(2)+"</td></tr>";
+				result+="<tr><td><a href=\"eliminarRecibo.html?id="+rs.getString(1)+"\">E</a></td><td>"+rs.getString(2)+"</td><td>"+rs.getString(3)+"</td></tr>";
 			}
 			
 		}catch(SQLException e){
@@ -330,4 +352,127 @@ public class DataLayer {
 		}
 		return result;
 	}
+	public User findUser(String sql, String user) throws AccessException{
+		User result=null;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, user);
+			ResultSet rs=smt.executeQuery();
+			rs.next();
+			result = new User(rs.getString(1), rs.getString(2)+rs.getString(3), rs.getString(4),rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getString(10));
+			rs.close();
+			smt.close();
+			con.close();
+			return result;
+		}catch(ClassNotFoundException e){
+			throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD:"+ee.getMessage());
+		}
+	}
+	public String showList(String sql, String indice,int indices,String eliminar,String actualizar)throws AccessException{
+		String result="";
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, indice);
+			ResultSet rs=smt.executeQuery();
+			while(rs.next()){
+
+				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a></td>";
+				for(int i =1;i<indices;i++){
+					result += "<td>"+rs.getString(i+1)+"</td>";
+				}
+				result+="</tr>";
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
+
+	public Project findProject(String sql, String codigo) throws AccessException {
+	Project result=null;
+	try{
+		Class.forName(driver);
+		Connection con= DriverManager.getConnection(url, usuario, contraseña);
+		PreparedStatement smt=con.prepareStatement(sql);
+		smt.setString(1, codigo);
+		ResultSet rs=smt.executeQuery();
+		rs.next();
+		result= new Project(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16), rs.getString(17), rs.getString(18));
+		rs.close();
+		smt.close();
+		con.close();
+		return result;
+	}catch(ClassNotFoundException e){
+			throw new AccessException("No ha detectado el Driver");
+	}catch(SQLException ee){
+		throw new AccessException("Fallo al conectar con la BBDD");
+		
+	}
+	}
+
+	public String showList(String sql, String dni,int columnas, String acceso) throws AccessException{
+		String result="";
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, dni);
+			ResultSet rs=smt.executeQuery();
+			while(rs.next()){
+				
+				for(int i=1;i<=columnas;i++)
+					if(i==1){
+						result+="<tr><td><a href=\""+acceso+rs.getString(i)+"\">A</a></td>";
+					}else{
+					result+="<td>"+rs.getString(i)+"</td>";
+					}
+			}
+			result+="</tr>";
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
+	public Customer findCustomer(String sql, String id) throws AccessException{
+		Customer result=null;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, id);
+			ResultSet rs=smt.executeQuery();
+			rs.next();
+			result= new Customer(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8));
+			rs.close();
+			smt.close();
+			con.close();
+			return result;
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+	}
+	
 }

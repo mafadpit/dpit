@@ -19,8 +19,7 @@
 </tr></table>
 
 </td></tr>
-
-<a href="entorno.html">Volver</a>
+<tr><td><a href="entorno.html">Volver</a></td></tr>
 </table>
 </body>
 </html>

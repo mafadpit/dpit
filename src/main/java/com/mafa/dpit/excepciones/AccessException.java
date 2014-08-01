@@ -1,6 +1,7 @@
 package com.mafa.dpit.excepciones;
-
+@SuppressWarnings("serial")
 public class AccessException extends Exception{
+
 	String msg;
 	public AccessException(String msg){
 		super();
