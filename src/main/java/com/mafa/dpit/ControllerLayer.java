@@ -238,6 +238,7 @@ public class ControllerLayer {
 	public String mostrarAlcance(String cif,String nombre,String direccion,String localidad,String pais,String telefono,ModelMap model){
 		String user= (String)sesion.getAttribute("user");
 		DataLayer data= new DataLayer();
+		String[] plantilla;
 		// Comprobar el caso que ya existe el cliente para no crear fallo
 		Customer c= new Customer(cif,nombre,direccion,localidad,pais,telefono,"Privado",user);
 		Customer cli;
@@ -262,9 +263,9 @@ public class ControllerLayer {
 
 			pm.updateProject(p);
 			// Actualizamos las categorias (Alcance)
-			String[] plantilla=tp.template(p.getTipoProyecto());
+			plantilla=tp.template(p.getTipoProyecto());
 			for(int i=0;i<plantilla.length;i++){
-				
+				Crear alcance (Categorias y Subcategorias)
 			}
 			model.addAttribute("categorias", "MUESTRA DE PRUEBAS");
 			
