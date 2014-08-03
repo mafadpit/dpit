@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mafa.dpit.excepciones.ControllerException;
+import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Customer;
 import com.mafa.dpit.util.Installation;
 import com.mafa.dpit.util.Material;
@@ -195,6 +196,8 @@ public class ControllerLayer {
 	}
 	@RequestMapping("definirProyectoB")
 	public String asignarCliente(String id,ModelMap model){
+		String user = (String) sesion.getAttribute("user");
+		String rol= (String) sesion.getAttribute("rol");
 		ResourceManager rm= new ResourceManager();
 		Customer c;
 		try{
@@ -239,12 +242,15 @@ public class ControllerLayer {
 		String user= (String)sesion.getAttribute("user");
 		DataLayer data= new DataLayer();
 		String[] plantilla;
+		String nivel="Categoría";
+		String categoria;
 		// Comprobar el caso que ya existe el cliente para no crear fallo
 		Customer c= new Customer(cif,nombre,direccion,localidad,pais,telefono,"Privado",user);
 		Customer cli;
 		ResourceManager rm = new ResourceManager();
 		ProjectManager pm= new ProjectManager();
 		TemplateManager tp= new TemplateManager();
+		Category cat;
 
 		try {
 			// Buscamos el proyecto
@@ -259,19 +265,130 @@ public class ControllerLayer {
 			// asignamos el cliente al proyecto
 
 			p.setCodigo_cliente(c.getCif());
+			p.setCodigo_user(user);
 			// Actualizamos el proyecto
-
 			pm.updateProject(p);
 			// Actualizamos las categorias (Alcance)
 			plantilla=tp.template(p.getTipoProyecto());
 			for(int i=0;i<plantilla.length;i++){
-				Crear alcance (Categorias y Subcategorias)
+				System.out.println("Pnatilla:"+plantilla.length);
+				//Crear Alcance (Categorias y Subcategorias)
+				if(plantilla[i].compareToIgnoreCase("C")==0 || plantilla[i].compareTo(" ")==0){
+					nivel="Categoría";
+				}else if(plantilla[i].compareToIgnoreCase("SC")==0){
+					nivel="Sub-Categoría";
+				}else{
+					if(nivel.compareToIgnoreCase("Categoría")==0){
+						//Creamos Categoría
+						cat=new Category(pm.maxCode("categorias"),plantilla[i],"0","0","0","0",p.getCodigo());
+						
+						pm.createCategory(cat);
+						
+						categoria=cat.getCodigo();
+					}else{
+						//Creamos sub-categorias de la "Categoria"
+						
+					}
+				}
 			}
-			model.addAttribute("categorias", "MUESTRA DE PRUEBAS");
+			model.addAttribute("categorias",pm.showCategory(p.getCodigo()));
 			
 		} catch (ControllerException e) {
 			ModelMap m= new ModelMap();
 			m.addAttribute("error", e.getMsg());
+			return "error";
+		}
+		return "definirProyectoC";
+	}
+	/**
+	 * CATEGORIAS
+	 */
+	
+	@RequestMapping("eliminarCategoria")
+	public String eliminarCategoria(String id,ModelMap model){
+		String codigo_proyecto=(String)sesion.getAttribute("proyecto");
+		try{
+		ProjectManager pm= new ProjectManager();
+		pm.deleteCategory(id);
+		model.addAttribute("categorias",pm.showCategory(codigo_proyecto));
+		}catch(Exception e){
+			System.out.println("Fallo:"+e.getMessage());
+			ModelAndView modelE = new ModelAndView();
+			modelE.setViewName("sesion");
+			return "sesion";
+		}
+		return "definirProyectoC";
+	}
+	@RequestMapping("actualizarCategoria")
+	public String accederCategoria(String id,ModelMap model){
+		ProjectManager pm= new ProjectManager();
+		Category categoria;
+		try {
+			categoria = pm.findCategory(id);
+		
+		if(categoria!=null){
+			model.addAttribute("codigo", categoria.getCodigo());
+			model.addAttribute("categoria", categoria.getNombre());
+			model.addAttribute("estimacionTemporal",categoria.getEstimacionTemporal());
+			model.addAttribute("estimacionCoste", categoria.getEstimacionCoste());
+			model.addAttribute("costeReal", categoria.getCosteReal());
+			model.addAttribute("costeTemporal", categoria.getCosteTemporal());
+		}
+		} catch (ControllerException e) {
+			ModelAndView modelE = new ModelAndView();
+			modelE.setViewName("sesion");
+			return "sesion";
+		}
+		return "nuevaCategoria";
+		
+	}
+	@RequestMapping("nuevaCategoria")
+	public String nuevaCategoria(ModelMap model){
+		ProjectManager pm= new ProjectManager();
+		try {
+			model.addAttribute("codigo",pm.maxCode("categorias"));
+			model.addAttribute("categoria","Nueva Categoria");
+			model.addAttribute("estimacionTemporal","0");
+			model.addAttribute("estimacionCoste","0");
+			model.addAttribute("costeReal", "0");
+			model.addAttribute("costeTemporal", "0");
+		return "nuevaCategoria";
+		} catch (ControllerException e) {
+			return "error";
+		}
+	}
+	@RequestMapping("guardarCategoria")
+	public String guardarCategoria(String codigo,String categoria,String estimacionTemporal,String estimacionCoste,String costeReal,String costeTemporal,ModelMap model){
+		String codigo_proyecto= (String) sesion.getAttribute("proyecto");
+		ProjectManager pm= new ProjectManager();
+		try{
+			System.out.println("Busca Categoria:"+codigo);
+		Category c= pm.findCategory(codigo);
+		if(c==null){
+			// Crear una nueva Categoria
+			try {				
+				c=new Category(codigo,categoria,estimacionTemporal,estimacionCoste,costeReal,costeTemporal,codigo_proyecto);
+				pm.createCategory(c);
+				
+				
+			} catch (ControllerException e) {
+				System.out.println("Fallo:"+e.getMsg());
+				return "error";
+			}
+		}else{
+			// Actualizar Categoría
+			c.setCodigo(codigo);
+			c.setNombre(categoria);
+			c.setEstimacionTemporal(estimacionTemporal);
+			c.setEstimacionCoste(estimacionCoste);
+			c.setCosteTemporal(costeTemporal);
+			c.setCosteReal(costeReal);
+			c.setCodigo_proyecto(codigo_proyecto);
+			System.out.println("Categoria Actualizada:"+c.getNombre()+" "+c.getCodigo_proyecto());
+			pm.updateCategory(c);
+		}
+			model.addAttribute("categorias",pm.showCategory(codigo_proyecto) );
+		} catch (ControllerException e) {
 			return "error";
 		}
 		return "definirProyectoC";

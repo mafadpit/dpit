@@ -2,6 +2,7 @@ package com.mafa.dpit;
 
 import com.mafa.dpit.excepciones.AccessException;
 import com.mafa.dpit.excepciones.ControllerException;
+import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Project;
 
 public class ProjectManager {
@@ -105,6 +106,80 @@ public class ProjectManager {
 		valores[17]=p.getCodigo_cliente();
 		try {
 			data.update("proyectos", atributos, valores, p.getCodigo());
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public void createCategory(Category category)throws ControllerException {
+		DataLayer data= new DataLayer();
+		String[] valores= new String[7];
+		valores[0]=category.getCodigo();
+		valores[1]=category.getNombre();
+		valores[2]=category.getEstimacionCoste();
+		valores[3]=category.getEstimacionTemporal();
+		valores[4]=category.getCosteReal();
+		valores[5]=category.getCosteTemporal();
+		valores[6]=category.getCodigo_proyecto();
+		try {
+			data.create("categorias", valores);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public String showCategory(String codigo_proyecto) throws ControllerException {
+		String result="<table><tr><td>Opciones</td><td>Nombre</td><td>Estimación Temporal</td><td>Estimación Económica</td><td>Coste Económico</td><td>Coste Temporal</td></tr>";
+		DataLayer data= new DataLayer();
+		try {
+			
+			result+=data.showList("select * from categorias where codigo_proyecto=?; ", codigo_proyecto, 6, "eliminarCategoria.html", "actualizarCategoria.html");
+			
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public void deleteCategory(String id) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try {
+			data.delete("categorias", "codigo", id);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public Category findCategory(String id) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try {
+			return data.findCategory("select * from categorias where codigo=? ",id);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+	}
+	public void updateCategory(Category c) throws ControllerException {
+		DataLayer data= new DataLayer();
+		String[] atributos= new String[7];
+		String[] valores= new String[7];
+		atributos[0]="codigo";
+		atributos[1]="nombre";
+		atributos[2]="\"estimacionTemporal\"";
+		atributos[3]="\"estimacionCoste\"";
+		atributos[4]="\"costeReal\"";
+		atributos[5]="\"costeTemporal\"";
+		atributos[6]="codigo_proyecto";
+		valores[0]=c.getCodigo();
+		valores[1]=c.getNombre();
+		valores[2]=c.getEstimacionTemporal();
+		valores[3]=c.getEstimacionCoste();
+		valores[4]=c.getCosteReal();
+		valores[5]=c.getCosteTemporal();
+		valores[6]=c.getCodigo_proyecto();
+		try {
+			System.out.println("PM1");
+			data.update("categorias", atributos, valores, c.getCodigo());
+			System.out.println("PM2");
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}

@@ -39,11 +39,11 @@ font-color="white";
 </tr><tr>
 <td colspan=2>
 <input type="radio" name="tipo" value="Nuevo" checked/>Nuevo<br />
-<input type="radio" name="tipo" value="Desarrollo de software" /> Desarrollo de software<br />
+<input type="radio" name="tipo" value="Desarrollo de Software" /> Desarrollo de software<br />
 <input type="radio" name="tipo" value="Integración de Software" />Integración de Software<br />
 <input type="radio" name="tipo" value="Implantación de Software" />Implantación de Software<br />
 <input type="radio" name="tipo" value="Mantenimiento de Software" />Mantenimiento de Software<br />
-<input type="radio" name="tipo" value="Bussines Inteligence" />Bussines Inteligence<br />
+<input type="radio" name="tipo" value="Business Inteligence" />Business Inteligence<br />
 <input type="radio" name="tipo" value="Selección de paquete" />Selección de paquete<br />
 <input type="radio" name="tipo" value="Implantación de paquete" />Implantación de paquete<br />
 <input type="radio" name="tipo" value="Outsourcing" />Outsourcing<br />
@@ -51,7 +51,7 @@ font-color="white";
 <input type="radio" name="tipo" value="Implantación de Hardware" />Implantación de Hardware<br />
 <input type="radio" name="tipo" value="Administración de Hardware" />Administración de Hardware<br />
 <input type="radio" name="tipo" value="Selección de Comunicaciones" />Selección de Comunicaciones<br />
-<input type="radio" name="tipo" value="Implantación de Comunicación" />Implantación de Comunicación<br />
+<input type="radio" name="tipo" value="Implantación de Comunicaciones" />Implantación de Comunicación<br />
 <input type="radio" name="tipo" value="Evaluación, estudios y auditoría" />Evaluación, estudios y auditoría<br />
 <input type="radio" name="tipo" value="Formación" />Formación<br />
 <input type="radio" name="tipo" value="Resolución de Problemas" />Resolución de Problemas<br />

@@ -135,7 +135,6 @@ public class DataLayer {
 		}
 		sql+=" "+atributos[atributos.length-1]+"='"+valores[atributos.length-1]+"'";
 		sql+=" where codigo='"+indice+"';";
-		System.out.println(sql);
 		try{
 			
 			Class.forName(driver);
@@ -164,12 +163,11 @@ public class DataLayer {
 			sql+=" '"+valores[i]+"', ";
 		}
 		sql+=" '"+valores[valores.length-1]+"');";
-		
+		System.out.println(sql);
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
 			Statement smt=con.createStatement();
-			System.out.println(sql);
 			smt.execute(sql);
 			smt.close();
 			con.close();
@@ -380,13 +378,15 @@ public class DataLayer {
 			PreparedStatement smt=con.prepareStatement(sql);
 			smt.setString(1, indice);
 			ResultSet rs=smt.executeQuery();
+		
 			while(rs.next()){
-
+				
 				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a></td>";
 				for(int i =1;i<indices;i++){
 					result += "<td>"+rs.getString(i+1)+"</td>";
 				}
 				result+="</tr>";
+			
 			}
 			rs.close();
 			smt.close();
@@ -463,6 +463,28 @@ public class DataLayer {
 			ResultSet rs=smt.executeQuery();
 			rs.next();
 			result= new Customer(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8));
+			rs.close();
+			smt.close();
+			con.close();
+			return result;
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+	}
+	public Category findCategory(String sql, String id) throws AccessException {
+		Category result=null;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, id);
+			ResultSet rs=smt.executeQuery();
+			if(rs.next()){
+				result= new Category(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7));
+			}
 			rs.close();
 			smt.close();
 			con.close();

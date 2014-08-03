@@ -1,20 +1,36 @@
 package com.mafa.dpit;
 
 
-
+/**
+ * Manejador de Plantillas definidas en el sistema
+ * @author MIGUEL ÁNGEL FIDALGO
+ *
+ */
 public class TemplateManager {
-
-	public void TemplateManager(){
+/**
+ * Constructor de la clase
+ */
+public void TemplateManager(){
 		
 		
-	}
-	public String[] template(String template){
+}
+/**
+ * Genera la estructura de tokens de la plantilla
+ * @param template Nombre de la Plantilla
+ * @return Estructura de Tokens 
+ */
+public String[] template(String template){
 		String[] tokens=templateType(template).split("#");
 		return tokens;
-	}
-	public String templateType(String template){
+}
+/**
+ * Identifica la plantilla y devuelve la linea con sus tokens e identificadores
+ * @param template Nombre de la plantilla
+ * @return Linea que incluye categorias y sub-categorias
+ */
+public String templateType(String template){
 		String t="";
-		if(template.compareTo("Desarrollo de software")==0){
+		if(template.compareTo("Desarrollo de Software")==0){
 			t+="C#Diseño#";
 			t+="SC#Estudio#Formacion#Guia#Propuesta#";
 			t+="C#Desarrollo#";
@@ -22,7 +38,7 @@ public class TemplateManager {
 			t+="C#Implantación#";
 			t+="SC#Instalación#Test de Sistema#";
 			t+="C#Internacionalización";
-		}else if(template.compareTo("Integración de software")==0){
+		}else if(template.compareTo("Integración de Software")==0){
 			t+="C#Diseño#";
 			t+="SC#Estudio#Formacion#Guia#Propuesta#Reingeniería#";
 			t+="C#Desarrollo#";
@@ -31,10 +47,10 @@ public class TemplateManager {
 			t+="SC#Instalación#Test de Sistema#";
 			t+="C#Mantenimiento#";
 			t+="SC#Actualización";
-		}else if(template.compareTo("Implantación de software")==0){
+		}else if(template.compareTo("Implantación de Software")==0){
 			t+="C#Implantación#";
-			t+="SC#Transporte#Instalación#Test de Sistema#";
-		}else if(template.compareTo("Mantenimiento de software")==0){
+			t+="SC#Transporte#Instalación#Test de Sistema";
+		}else if(template.compareTo("Mantenimiento de Software")==0){
 			t+="C#Diseño#";
 			t+="SC#Estudio#";
 			t+="C#Mantenimiento#";
@@ -46,14 +62,14 @@ public class TemplateManager {
 			t+="SC#Módulo#";
 			t+="C#Implantación#";
 			t+="SC#Instalación#Test de Sistema";
-		}else if(template.compareTo("Selección de paquetes")==0){
+		}else if(template.compareTo("Selección de paquete")==0){
 			t+="C#Diseño#";
 			t+="SC#Estudio#Propuesta#";
 			t+="C#Desarrollo#";
 			t+="SC#Paquete#";
 			t+="C#Implantación#";
 			t+="SC#Instalación";
-		}else if(template.compareTo("Implantación de paquetes")==0){
+		}else if(template.compareTo("Implantación de paquete")==0){
 			t+="C#Diseño#";
 			t+="SC#Guía#Propuesta#";
 			t+="C#Desarrollo#";
@@ -108,7 +124,7 @@ public class TemplateManager {
 			t+="SC#Estudio#Guía#Propuesta#";
 			t+="C#Recursos Humanos#";
 			t+="SC#Trabajadores#Formación Específica#Otros Costes";
-		}else if(template.compareTo("Resolución de problemas")==0){
+		}else if(template.compareTo("Resolución de Problemas")==0){
 			t+="C#Diseño#";
 			t+="SC#Guía#Propuesta#Reingeniería#";
 			t+="C#Mantenimiento#";
@@ -116,7 +132,7 @@ public class TemplateManager {
 			t+="C#Soporte#";
 			t+="SC#Comunicaciones";
 		}else{
-			t="";
+			t="C";
 		}
 		return t;
 	}

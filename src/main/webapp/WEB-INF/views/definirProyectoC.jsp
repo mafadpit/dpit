@@ -8,5 +8,6 @@
 </head>
 <body>
 ${categorias }
+<a href="nuevaCategoria.html">Nuevo</a>
 </body>
 </html>
