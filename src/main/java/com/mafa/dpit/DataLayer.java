@@ -163,7 +163,6 @@ public class DataLayer {
 			sql+=" '"+valores[i]+"', ";
 		}
 		sql+=" '"+valores[valores.length-1]+"');";
-		System.out.println(sql);
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);

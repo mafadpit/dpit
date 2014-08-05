@@ -7,8 +7,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-${categorias }
-<a href="nuevaCategoria.html">Nuevo</a>
-<a href="planificarProyecto.html?id=${proyecto }">Pasar a planificación</a>
+<table><tr bgcolor="blue"><td><img src="${pageContext.servletContext.contextPath }/resources/images/Logo.png" /></td><td colspan=4><font color="white">Bienvenido:${nombre } / <a href="cerrar.html">Cerrar</a> ( ${rol } )</font></td></tr>
+<tr><td><h2>Planificación del proyecto</h2></td></tr></table>
+<a href="definirHito.html">Hitos</a>
 </body>
 </html>

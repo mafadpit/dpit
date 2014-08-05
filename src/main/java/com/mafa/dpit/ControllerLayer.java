@@ -271,7 +271,6 @@ public class ControllerLayer {
 			// Actualizamos las categorias (Alcance)
 			plantilla=tp.template(p.getTipoProyecto());
 			for(int i=0;i<plantilla.length;i++){
-				System.out.println("Pnatilla:"+plantilla.length);
 				//Crear Alcance (Categorias y Subcategorias)
 				if(plantilla[i].compareToIgnoreCase("C")==0 || plantilla[i].compareTo(" ")==0){
 					nivel="Categoría";
@@ -292,6 +291,7 @@ public class ControllerLayer {
 				}
 			}
 			model.addAttribute("categorias",pm.showCategory(p.getCodigo()));
+			model.addAttribute("proyecto",p.getCodigo());
 			
 		} catch (ControllerException e) {
 			ModelMap m= new ModelMap();
@@ -299,6 +299,32 @@ public class ControllerLayer {
 			return "error";
 		}
 		return "definirProyectoC";
+	}
+	@RequestMapping("planificarProyecto")
+	public String planificarProyecto(String id,ModelMap model){
+		ProjectManager pm= new ProjectManager();
+		UserManager um= new UserManager();
+		String user = (String) sesion.getAttribute("user");
+		String rol= (String) sesion.getAttribute("rol");
+		Calendar c= Calendar.getInstance();
+		String fecha=Integer.toString(c.get(Calendar.DATE));
+		fecha+="."+Integer.toString(c.get(Calendar.MONTH)+1);
+		fecha+="."+Integer.toString(c.get(Calendar.YEAR));
+		Project p;
+		try {
+			p= pm.findProject(id);
+			p.setFechaAprobacion(fecha);
+			p.setEstado("Planificación");
+		System.out.println("Proyecto:"+p.getTitulo()+" Estado:"+p.getEstado());
+			pm.updateProject(p);
+			model.addAttribute("nombre", um.findUser(user).getNombreCompleto());
+			model.addAttribute("rol", rol);
+		} catch (ControllerException e) {
+		ModelAndView m= new ModelAndView();	
+		m.setViewName("error");
+		return "error";
+		}
+		return "planificarProyecto";
 	}
 	/**
 	 * CATEGORIAS
