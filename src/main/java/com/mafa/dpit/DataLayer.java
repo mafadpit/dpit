@@ -58,6 +58,34 @@ public class DataLayer {
 		}
 		return result;
 	}
+	public String showList(String tabla, String columnas, int indices,String condicion,String eliminar,String actualizar,String user) throws AccessException{
+		String result="";
+		String sql="select "+columnas+ " from "+ tabla+ " where "+condicion;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();
+			ResultSet rs=smt.executeQuery(sql);
+			while(rs.next()){
+
+				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a></td>";
+				for(int i =1;i<indices;i++){
+					result += "<td>"+rs.getString(i+1)+"</td>";
+				}
+				result+="</tr>";
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
 	/**
 	 * Solicita a la una tabla la información deseada
 	 * @param tabla Nombre de la tabla
@@ -494,6 +522,57 @@ public class DataLayer {
 			throw new AccessException("Fallo al conectar con la BBDD");
 			
 		}
+	}
+	public Task findTask(String sql, String partida) throws AccessException{
+		Task result=null;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			PreparedStatement smt=con.prepareStatement(sql);
+			smt.setString(1, partida);
+			ResultSet rs=smt.executeQuery();
+			if(rs.next()){
+				result= new Task(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14));
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			return result;
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+	}
+	public String showListAccess(String columnas, String tabla,String condicion, int indices,
+			String eliminar, String actualizar,String acceso) throws AccessException{
+		String result="";
+		String sql="select "+columnas+ " from "+ tabla+ " where "+condicion;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();
+			ResultSet rs=smt.executeQuery(sql);
+			while(rs.next()){
+
+				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a><a href=\""+acceso+"?id="+rs.getString(1)+"\">A</a></td>";
+				for(int i =1;i<indices;i++){
+					result += "<td>"+rs.getString(i+1)+"</td>";
+				}
+				result+="</tr>";
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
 	}
 	
 }

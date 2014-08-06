@@ -4,6 +4,7 @@ import com.mafa.dpit.excepciones.AccessException;
 import com.mafa.dpit.excepciones.ControllerException;
 import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Project;
+import com.mafa.dpit.util.Task;
 
 public class ProjectManager {
 	
@@ -133,7 +134,7 @@ public class ProjectManager {
 		DataLayer data= new DataLayer();
 		try {
 			
-			result+=data.showList("select * from categorias where codigo_proyecto=?; ", codigo_proyecto, 6, "eliminarCategoria.html", "actualizarCategoria.html");
+			result+=data.showList("select * from categorias where codigo_proyecto=?",codigo_proyecto,6, "eliminarCategoria.html", "actualizarCategoria.html");
 			
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
@@ -185,5 +186,33 @@ public class ProjectManager {
 		}
 		
 	}
+	public Task findTask(String partida) throws ControllerException {
+		// Devuelve la Partida
+		String sql="select * from partidas where codigo=?";
+		DataLayer data= new DataLayer();
+		try {
+			return data.findTask(sql,partida);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+	}
+	public String showTask(String categoria, String partida) throws ControllerException{
+		String result="";
+		String tabla="partidas";
+		String columnas="codigo,definicion,unidad,cantidad,precioUnidad,tipo,costeFinal";
+		int indices=7;
+		String condicion="partidaSuperior = partida ";
+		String eliminar="eliminarPartida.html";
+		String actualizar="actualizarPartida.html";
+		String user="0000";
+		DataLayer data= new DataLayer();
+		try {
+			result+=data.showList(tabla, columnas, indices, condicion, eliminar, actualizar, user);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		return result;
+	}
+	
 
 }

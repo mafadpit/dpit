@@ -22,6 +22,7 @@ import com.mafa.dpit.util.Material;
 import com.mafa.dpit.util.Project;
 import com.mafa.dpit.util.Receipt;
 import com.mafa.dpit.util.Support;
+import com.mafa.dpit.util.Task;
 import com.mafa.dpit.util.User;
 import com.mafa.dpit.util.Worker;
 
@@ -890,7 +891,27 @@ public class ControllerLayer {
 			}
 			return "actualizarInstalacion";
 		}
+ @RequestMapping("accesoPartida")
+ public String accesoSubdivision(String categoria,String partida,ModelMap model){
+	 String user=(String) sesion.getAttribute("user");
+	 String rol=(String)sesion.getAttribute("rol");
+	 String proyecto=(String) sesion.getAttribute("proyecto");
+	 ProjectManager pm= new ProjectManager();
+	 try {
+		 Task t=pm.findTask(partida);
+		 model.addAttribute("categoria", categoria);
+		 if(t!=null)
+			 model.addAttribute("partidaSup", t.getPartidaSuperior());
+		 model.addAttribute("partidas", pm.showTask(categoria,partida));
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("sesion");
+		return "sesion";
+	}
+	
+	 
+	 return "accesoPartida";
+ }
 }
-
 
 
