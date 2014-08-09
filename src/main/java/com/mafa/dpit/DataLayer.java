@@ -61,6 +61,7 @@ public class DataLayer {
 	public String showList(String tabla, String columnas, int indices,String condicion,String eliminar,String actualizar,String user) throws AccessException{
 		String result="";
 		String sql="select "+columnas+ " from "+ tabla+ " where "+condicion;
+		System.out.println(sql);
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
@@ -98,6 +99,7 @@ public class DataLayer {
 	public String showList(String tabla, String columnas, int indices,String eliminar,String actualizar,String user) throws AccessException{
 		String result="";
 		String sql="select "+columnas+ " from "+ tabla+ " where codigo_user=?";
+		System.out.println(sql);
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
@@ -191,6 +193,7 @@ public class DataLayer {
 			sql+=" '"+valores[i]+"', ";
 		}
 		sql+=" '"+valores[valores.length-1]+"');";
+		System.out.println(sql);
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
@@ -213,22 +216,22 @@ public class DataLayer {
 	 * @throws AccessException
 	 */
 	public String autoCode(String tabla) throws AccessException{
-		String sql="select count(codigo) from \""+tabla+"\"";
-		String resultado;
-		long result;
+		String sql="select codigo from \""+tabla+"\"";
+		String resultado="";
+		long result,mayor=1;
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
 			Statement smt=con.createStatement();
 			ResultSet rs=smt.executeQuery(sql);
-			if(rs.next()){
-			resultado=rs.getString(1);
-			result=Long.parseLong(resultado);
-			result+=1;
-			resultado=String.valueOf(result);
-			}else{
-				resultado="1";
+			while(rs.next()){
+				resultado=rs.getString(1);
+				result=Long.parseLong(resultado);
+				if(mayor<result){
+					mayor=result;
+				}
 			}
+			resultado=String.valueOf(mayor+1);
 			rs.close();
 			smt.close();
 			con.close();
@@ -532,7 +535,7 @@ public class DataLayer {
 			smt.setString(1, partida);
 			ResultSet rs=smt.executeQuery();
 			if(rs.next()){
-				result= new Task(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14));
+				result= new Task(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(14),rs.getString(13),rs.getString(8),rs.getString(9));
 			}
 			rs.close();
 			smt.close();
@@ -546,7 +549,7 @@ public class DataLayer {
 		}
 	}
 	public String showListAccess(String columnas, String tabla,String condicion, int indices,
-			String eliminar, String actualizar,String acceso) throws AccessException{
+		String eliminar, String actualizar,String acceso) throws AccessException{
 		String result="";
 		String sql="select "+columnas+ " from "+ tabla+ " where "+condicion;
 		try{
@@ -557,6 +560,35 @@ public class DataLayer {
 			while(rs.next()){
 
 				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a><a href=\""+acceso+"?id="+rs.getString(1)+"\">A</a></td>";
+				for(int i =1;i<indices;i++){
+					result += "<td>"+rs.getString(i+1)+"</td>";
+				}
+				result+="</tr>";
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
+	public String showListAccess(String tabla, String columnas, int indices,String condicion,String eliminar,String actualizar) throws AccessException{
+		String result="";
+		String sql="select "+columnas+ " from "+ tabla+ " where "+condicion;
+		System.out.println(sql);
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();
+			ResultSet rs=smt.executeQuery(sql);
+			while(rs.next()){
+
+				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a></td>";
 				for(int i =1;i<indices;i++){
 					result += "<td>"+rs.getString(i+1)+"</td>";
 				}

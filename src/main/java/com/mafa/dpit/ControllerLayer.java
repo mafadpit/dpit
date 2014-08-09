@@ -143,6 +143,27 @@ public class ControllerLayer {
 		return "proyectos";
 		
 	}
+	@RequestMapping("eliminarProyecto")
+	public String eliminarProyecto(String id,ModelMap model){
+		
+		UserManager um= new UserManager();
+		ProjectManager pm= new ProjectManager();
+		try{
+			String user= (String)sesion.getAttribute("user");
+			String rol=(String)sesion.getAttribute("rol");
+			User u= um.findUser(user);
+			pm.deleteProject(id);
+			model.addAttribute("nombre", u.getNombreCompleto());
+			model.addAttribute("rol", rol);
+			model.addAttribute("proyectos", pm.showProject(u.getDni()));
+		}catch(Exception e){
+			System.out.println("Fallo:"+e.getMessage());
+			ModelAndView modelE = new ModelAndView();
+			modelE.setViewName("sesion");
+			return "sesion";
+		}
+		return "proyectos";
+	}
 	@RequestMapping("nuevoProyecto")
 	public String nuevoProyecto(ModelMap model){
 		UserManager um= new UserManager();
@@ -162,7 +183,47 @@ public class ControllerLayer {
 		return "nuevoProyecto";
 		
 	}
-	
+	@RequestMapping("accederProyecto")
+	public String accederProyecto(String id,ModelMap model){
+		String user=(String) sesion.getAttribute("user");
+		String rol=(String)sesion.getAttribute("rol");
+		ProjectManager pm=new ProjectManager();
+		Project p;
+		try {
+			p = pm.findProject(id);
+		
+		
+			if(p.getEstado().compareToIgnoreCase("Planificación")==0){
+				
+				model.addAttribute("id", id);
+				return "planificarProyecto";
+			}
+			if(p.getEstado().compareToIgnoreCase("Seguimiento")==0){
+			
+				model.addAttribute("id", id);
+				///// QUEDA POR HACER
+				//
+				//
+				//
+				return "seguirProyecto";
+			}
+			if(p.getEstado().compareToIgnoreCase("Cierre")==0){
+			
+				model.addAttribute("id", id);
+				///// QUEDA POR HACER
+				//
+				//
+				//
+				return "cerrarProyecto";
+			}
+		} catch (ControllerException e) {
+			ModelAndView modelE = new ModelAndView();
+			modelE.setViewName("error");
+			return "error";
+		}
+		return "error";
+		
+	}
 	@RequestMapping("definirProyecto")
 	public String definirProyecto(String titulo,String modelo,String tipo,ModelMap model){
 		UserManager um= new UserManager();
@@ -218,11 +279,7 @@ public class ControllerLayer {
 		return "definirProyectoB1";
 		
 	}
-	private String mostrarError() {
-		ModelAndView model = new ModelAndView();
-		model.setViewName("error");
-		return "error";
-	}
+	
 	@RequestMapping("proyectoNuevoCliente")
 	public String nuevoCliente(ModelMap model){
 		UserManager um= new UserManager();
@@ -252,38 +309,45 @@ public class ControllerLayer {
 		ProjectManager pm= new ProjectManager();
 		TemplateManager tp= new TemplateManager();
 		Category cat;
-
+		System.out.println("T1");
 		try {
 			// Buscamos el proyecto
-
+			System.out.println("T2");
 			Project p= pm.findProject((String)sesion.getAttribute("proyecto"));
 			// Creamos el cliente
-			
+			System.out.println("T3");
 			cli=rm.accessCustomer(c.getCif());
 			if(cli==null){
 				rm.createCustomer(c);
+				System.out.println("T3A");
 			}
 			// asignamos el cliente al proyecto
-
+			System.out.println("T4");
 			p.setCodigo_cliente(c.getCif());
 			p.setCodigo_user(user);
 			// Actualizamos el proyecto
+			System.out.println("T5");
 			pm.updateProject(p);
+			System.out.println("T6");
 			// Actualizamos las categorias (Alcance)
 			plantilla=tp.template(p.getTipoProyecto());
+			System.out.println("T7");
 			for(int i=0;i<plantilla.length;i++){
 				//Crear Alcance (Categorias y Subcategorias)
 				if(plantilla[i].compareToIgnoreCase("C")==0 || plantilla[i].compareTo(" ")==0){
 					nivel="Categoría";
+					System.out.println("T8");
 				}else if(plantilla[i].compareToIgnoreCase("SC")==0){
 					nivel="Sub-Categoría";
+					System.out.println("T8A");
 				}else{
 					if(nivel.compareToIgnoreCase("Categoría")==0){
 						//Creamos Categoría
+						System.out.println("T9");
 						cat=new Category(pm.maxCode("categorias"),plantilla[i],"0","0","0","0",p.getCodigo());
-						
+						System.out.println("T10:"+cat.getCodigo());
 						pm.createCategory(cat);
-						
+						System.out.println("T11");
 						categoria=cat.getCodigo();
 					}else{
 						//Creamos sub-categorias de la "Categoria"
@@ -291,8 +355,11 @@ public class ControllerLayer {
 					}
 				}
 			}
+			
 			model.addAttribute("categorias",pm.showCategory(p.getCodigo()));
+			System.out.println("T12");
 			model.addAttribute("proyecto",p.getCodigo());
+			System.out.println("T13");
 			
 		} catch (ControllerException e) {
 			ModelMap m= new ModelMap();
@@ -316,10 +383,10 @@ public class ControllerLayer {
 			p= pm.findProject(id);
 			p.setFechaAprobacion(fecha);
 			p.setEstado("Planificación");
-		System.out.println("Proyecto:"+p.getTitulo()+" Estado:"+p.getEstado());
 			pm.updateProject(p);
 			model.addAttribute("nombre", um.findUser(user).getNombreCompleto());
 			model.addAttribute("rol", rol);
+			model.addAttribute("id", p.getCodigo());
 		} catch (ControllerException e) {
 		ModelAndView m= new ModelAndView();	
 		m.setViewName("error");
@@ -371,6 +438,7 @@ public class ControllerLayer {
 	}
 	@RequestMapping("nuevaCategoria")
 	public String nuevaCategoria(ModelMap model){
+		String user= (String)sesion.getAttribute("user");
 		ProjectManager pm= new ProjectManager();
 		try {
 			model.addAttribute("codigo",pm.maxCode("categorias"));
@@ -465,6 +533,7 @@ public class ControllerLayer {
 	
 	@RequestMapping("accederTrabajador")
 	public String accederTrabajador(String id,ModelMap model){
+		String user= (String)sesion.getAttribute("user");
 		ResourceManager r= new ResourceManager();
 		Worker trabajador= r.accessWorker(id);
 		if(trabajador!=null){
@@ -493,6 +562,7 @@ public class ControllerLayer {
 	}
 	@RequestMapping("nuevoTrabajador")
 	public String nuevoTrabajador(ModelMap model){
+		String user= (String)sesion.getAttribute("user");
 		return "nuevoTrabajador";
 	}
 	@RequestMapping("guardarTrabajador")
@@ -563,6 +633,7 @@ public class ControllerLayer {
 	}
 	@RequestMapping("nuevoSoporte")
 	public String nuevoSoporte(ModelMap model){
+		String user= (String)sesion.getAttribute("user");
 		return "nuevoSoporte";
 	}
 	@RequestMapping("eliminarSoporte")
@@ -662,6 +733,7 @@ public class ControllerLayer {
 	}
 	@RequestMapping("nuevoMaterial")
 	public String nuevoMaterial(ModelMap model){
+		String user= (String)sesion.getAttribute("user");
 		return "nuevoMaterial";
 	}
 	@RequestMapping("eliminarMaterial")
@@ -891,26 +963,180 @@ public class ControllerLayer {
 			}
 			return "actualizarInstalacion";
 		}
- @RequestMapping("accesoPartida")
- public String accesoSubdivision(String categoria,String partida,ModelMap model){
-	 String user=(String) sesion.getAttribute("user");
-	 String rol=(String)sesion.getAttribute("rol");
-	 String proyecto=(String) sesion.getAttribute("proyecto");
-	 ProjectManager pm= new ProjectManager();
+
+ @RequestMapping("definirTareas")
+ public String definirTareas(String id,ModelMap model){
 	 try {
-		 Task t=pm.findTask(partida);
-		 model.addAttribute("categoria", categoria);
-		 if(t!=null)
-			 model.addAttribute("partidaSup", t.getPartidaSuperior());
-		 model.addAttribute("partidas", pm.showTask(categoria,partida));
+	 String user=(String)sesion.getAttribute("user");
+	
+	 UserManager um= new UserManager();
+	 ProjectManager pm= new ProjectManager();
+	 User u;
+	 
+	
+		u = um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		model.addAttribute("tareas", pm.showCategoryAccess(id));
+		 sesion.setAttribute("Tcategoria","0" );
+		 sesion.setAttribute("Tpartida", "0");
 	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}catch(Exception ee){
 		ModelAndView modelE = new ModelAndView();
 		modelE.setViewName("sesion");
 		return "sesion";
 	}
-	
-	 
+	return "definirTareas";
+}
+ @RequestMapping("accesoCategoria")
+ public String accesoCategoria(String id,ModelMap model){
+	 String user=(String)sesion.getAttribute("user");
+	 UserManager um= new UserManager();
+	 ProjectManager pm= new ProjectManager();
+	 User u;
+	 Category cat;
+	try {
+		u = um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		model.addAttribute("partidas", pm.showTaskCategory(id));
+		 cat=pm.findCategory(id);
+		 sesion.setAttribute("Tcategoria",cat.getCodigo() );
+		 sesion.setAttribute("Tpartida", "0");
+		 model.addAttribute("home","<a href=\"definirTareas.html?id="+cat.getCodigo_proyecto()+"\">Categorias</a>");	
+		 model.addAttribute("categorias",cat.getNombre());
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	}
+	return "accesoPartida";
+}
+ @RequestMapping("accesoPartida")
+ public String accesoPartida(String id,ModelMap model){
+	 String actual;
+	 String user=(String)sesion.getAttribute("user");
+	 String tcategoria=(String)sesion.getAttribute("Tcategoria");
+	 UserManager um= new UserManager();
+	 ProjectManager pm= new ProjectManager();
+	 User u;
+	 Task t;
+	 Category cat;
+	try {
+		u = um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		model.addAttribute("partidas", pm.showTask(id,tcategoria));
+		t=pm.findTask(id);
+		sesion.setAttribute("Tpartida",id);
+		
+		cat=pm.findCategory(tcategoria);
+		model.addAttribute("home","<a href=\"definirTareas.html?id="+cat.getCodigo_proyecto()+"\">Categorias</a>");	
+		model.addAttribute("categorias","<a href=\"accesoCategoria.html?id="+cat.getCodigo()+"\">"+cat.getNombre()+"</a>");	
+		actual=t.getDefinicion();
+		if(t.getPartidaSuperior().compareToIgnoreCase("0")!=0){
+			t=pm.findTask(t.getPartidaSuperior());
+			model.addAttribute("partidaSup","<a href=\"accesoPartida.html?id="+ t.getCodigo()+"\">Subir Nivel</a> // "+actual);
+		}else{
+			model.addAttribute("partidaSup",actual);
+				
+		}
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	}
+	return "accesoPartida";
+}
+ @RequestMapping("nuevaPartida")
+ public String nuevaPartida(String definicion,String unidad,String cantidad,String precioUnidad,String tipo,ModelMap model){
+	 String user=(String)sesion.getAttribute("user");
+	 String tcategoria=(String)sesion.getAttribute("Tcategoria");
+	 String tpartida=(String)sesion.getAttribute("Tpartida");
+	 String actual;
+	 UserManager um= new UserManager();
+	 ProjectManager pm= new ProjectManager();
+	 User u;
+	 Task t;
+	 Category cat;
+	try {
+		u = um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		//Creamos la partida nueva
+		t=new Task(pm.maxCode("partidas"),definicion,unidad,cantidad,precioUnidad,tipo,"1","1","1","1","1","1",tpartida,tcategoria);
+		pm.createTask(t);
+		cat=pm.findCategory(tcategoria);
+		model.addAttribute("partidas", pm.showTask(t.getPartidaSuperior(),tcategoria));
+		model.addAttribute("categorias","<a href=\"accesoCategoria.html?id="+cat.getCodigo()+"\">"+cat.getNombre()+"</a>");
+		actual=t.getDefinicion();
+		if(t.getPartidaSuperior().compareToIgnoreCase("0")!=0){
+			t=pm.findTask(t.getPartidaSuperior());
+			model.addAttribute("partidaSup","<a href=\"accesoPartida.html?id="+ t.getCodigo()+"\">Subir Nivel</a> // "+actual);
+		}else{
+			model.addAttribute("partidaSup",actual);
+				
+		}
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	}
+	return "accesoPartida";
+}
+ 
+ @RequestMapping("eliminarCategoriaAccess")
+	public String eliminarCategoriaAccess(String id,ModelMap model){
+	 	String user= (String)sesion.getAttribute("user");
+		String codigo_proyecto=(String)sesion.getAttribute("proyecto");
+		try{
+		ProjectManager pm= new ProjectManager();
+		pm.deleteCategory(id);
+		model.addAttribute("tareas",pm.showCategoryAccess(codigo_proyecto));
+		}catch(Exception e){
+			System.out.println("Fallo:"+e.getMessage());
+			ModelAndView modelE = new ModelAndView();
+			modelE.setViewName("error");
+			return "error";
+		}
+		return "definirTareas";
+	}
+ @RequestMapping("eliminarPartida")
+ public String eliminarPartida(String id,ModelMap model){
+	 String user= (String) sesion.getAttribute("user");
+	 String rol= (String) sesion.getAttribute("rol");
+	 String actual;
+	 ProjectManager pm=new ProjectManager();
+	 try {
+		Task t= pm.findTask(id);
+		Category cat= pm.findCategory(t.getCategoria());
+		t=pm.findTask(t.getPartidaSuperior());
+		pm.deleteTask(id);
+		model.addAttribute("partidas", pm.showTask(t.getCodigo(),cat.getCodigo()));
+		model.addAttribute("home","<a href=\"definirTareas.html?id="+cat.getCodigo_proyecto()+"\">Categorias</a>");	
+		model.addAttribute("categorias","<a href=\"accesoCategoria.html?id="+cat.getCodigo()+"\">"+cat.getNombre()+"</a>");	
+		actual=t.getDefinicion();
+		if(t.getPartidaSuperior().compareToIgnoreCase("0")!=0){
+			t=pm.findTask(t.getPartidaSuperior());
+			model.addAttribute("partidaSup","<a href=\"accesoPartida.html?id="+ t.getCodigo()+"\">Subir Nivel</a> // "+actual);
+		}else{
+			model.addAttribute("partidaSup",actual);
+				
+		}
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	}
 	 return "accesoPartida";
+	 
  }
 }
 

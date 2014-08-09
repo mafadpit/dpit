@@ -12,7 +12,7 @@ public class ProjectManager {
 		String result="<table><tr bgcolor=\"Blue\"><td>Título</td><td>Estado</td><td>Estimación Temporal</td><td>Coste</td><td>Tipo de proyecto</td></tr>";
 		DataLayer data= new DataLayer();
 		try {
-			result+=data.showList("Select codigo,titulo,estado,\"estimacionTemporal\",coste,\"tipoProyecto\", codigo_user from proyectos where codigo_user=?",codigo_user, 7, "eliminarProyecto.html", "actualizarProyecto.html");
+			result+=data.showList("Select codigo,titulo,estado,\"estimacionTemporal\",coste,\"tipoProyecto\", codigo_user from proyectos where codigo_user=?",codigo_user, 7, "eliminarProyecto.html", "accederProyecto.html");
 			
 			
 		} catch (AccessException e) {
@@ -142,6 +142,19 @@ public class ProjectManager {
 		result+="</table>";
 		return result;
 	}
+	public String showCategoryAccess(String codigo_proyecto) throws ControllerException {
+		String result="<table><tr><td>Opciones</td><td>Nombre</td><td>Estimación Temporal</td><td>Estimación Económica</td><td>Coste Económico</td><td>Coste Temporal</td></tr>";
+		DataLayer data= new DataLayer();
+		try {
+			
+			result+=data.showList("select * from categorias where codigo_proyecto=?",codigo_proyecto,6, "eliminarCategoriaAccess.html", "accesoCategoria.html");
+			
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
 	public void deleteCategory(String id) throws ControllerException{
 		DataLayer data= new DataLayer();
 		try {
@@ -196,23 +209,83 @@ public class ProjectManager {
 			throw new ControllerException(e.getMsg());
 		}
 	}
-	public String showTask(String categoria, String partida) throws ControllerException{
-		String result="";
+	public String showTask(String id,String categoria) throws ControllerException{
+		String result="<table><tr><td>Opciones</td><td>Definición</td><td>Unidad</td><td>Cantidad</td><td>Precio/Unidad</td><td>Tipo</td><td>Coste Final</td></tr>";
 		String tabla="partidas";
-		String columnas="codigo,definicion,unidad,cantidad,precioUnidad,tipo,costeFinal";
+		String columnas="codigo,definicion,unidad,cantidad,\"precioUnidad\",tipo,\"costeFinal\"";
 		int indices=7;
-		String condicion="partidaSuperior = partida ";
+		String condicion="\"partidaSuperior\" ='"+ id+"' and categoria='"+categoria+"'";
 		String eliminar="eliminarPartida.html";
-		String actualizar="actualizarPartida.html";
-		String user="0000";
+		String actualizar="accesoPartida.html";
 		DataLayer data= new DataLayer();
 		try {
-			result+=data.showList(tabla, columnas, indices, condicion, eliminar, actualizar, user);
+			result+=data.showList(tabla, columnas, indices, condicion, eliminar, actualizar,"");
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}
+		result+="</table>";
 		return result;
 	}
-	
+	public String showTaskCategory(String id) throws ControllerException{
+		String result="<table><tr><td>Opciones</td><td>Definición</td><td>Unidad</td><td>Cantidad</td><td>Precio/Unidad</td><td>Tipo</td><td>Coste/Final</td></tr>";
+		String tabla="partidas";
+		String columnas="codigo,definicion,unidad,cantidad,\"precioUnidad\",tipo,\"costeFinal\"";
+		int indices=7;
+		String condicion="\"partidaSuperior\" = '0' and categoria='"+ id+"'";
+		String eliminar="eliminarPartida.html";
+		String actualizar="accesoPartida.html";
+		DataLayer data= new DataLayer();
+		try {
+			result+=data.showListAccess(tabla, columnas, indices, condicion, eliminar, actualizar);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public void createTask(Task t) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String[] valores= new String[14];
+		valores[0]=t.getCodigo();
+		valores[1]=t.getDefinicion();
+		valores[2]=t.getUnidad();
+		valores[3]=t.getCantidad();
+		valores[4]=t.getPrecioUnidad();
+		valores[5]=t.getTipo();
+		valores[6]=t.getCosteFinal();
+		valores[7]=t.getPartidaSuperior();
+		valores[8]=t.getCategoria();
+		valores[9]=t.getEstado();
+		valores[10]=t.getOrden();
+		valores[11]=t.getColchon();
+		valores[12]=t.getAsignaciones();
+		valores[13]=t.getCostesDerivados();
+		
+		try {
+			data.create("partidas", valores);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+		
+	}
+	public void deleteProject(String id) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try {
+			data.delete("proyectos", "codigo", id);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public void deleteTask(String id) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try {
+			data.delete("partidas", "codigo", id);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
 
 }

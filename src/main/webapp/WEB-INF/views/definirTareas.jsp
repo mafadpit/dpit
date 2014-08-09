@@ -7,8 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-<table><tr bgcolor="blue"><td><img src="${pageContext.servletContext.contextPath }/resources/images/Logo.png" /></td><td colspan=4><font color="white">Bienvenido:${nombre } / <a href="cerrar.html">Cerrar</a> ( ${rol } )</font></td></tr>
-<tr><td><h2>Planificación del proyecto</h2></td></tr></table>
-<a href="definirTareas.html?id=${id }">Tareas</a>
+${tareas }
 </body>
 </html>

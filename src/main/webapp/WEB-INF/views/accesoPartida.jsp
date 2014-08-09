@@ -7,9 +7,20 @@
 <title>Insert title here</title>
 </head>
 <body>
-${nombre }<hr>
-${rol }<hr>
-${categoria } // ${partidaSup }
+${nombre } (${rol })<hr>
+<table>
+<tr><td>Definición</td><td>Unidad</td><td>Cantidad</td><td>Precio/Unidad</td></tr>
+<tr><td>
+<form action="nuevaPartida.html" method="POST">
+<input type="text" name="definicion" >
+</td><td><input type="text" name="unidad" value="Horas">
+</td><td><input type="text" name="cantidad">
+</td><td><input type="text" name="precioUnidad">
+</td><td><input type="text" name="tipo" value="Tarea">
+</td><td><input type="submit" value="Nuevo">
+</form>
+</td></tr></table>
+${home }[${categorias }] // ${partidaSup }
 ${partidas }
 </body>
 </html>
