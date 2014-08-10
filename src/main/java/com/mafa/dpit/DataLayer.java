@@ -548,10 +548,12 @@ public class DataLayer {
 			
 		}
 	}
-	public String showListAccess(String columnas, String tabla,String condicion, int indices,
-		String eliminar, String actualizar,String acceso) throws AccessException{
+	
+	
+	public String showListTask(String tabla, String columnas, int indices,String condicion,String eliminar,String acceder,String medir,String asignar,String hitos,String riesgos) throws AccessException{
 		String result="";
 		String sql="select "+columnas+ " from "+ tabla+ " where "+condicion;
+		System.out.println(sql);
 		try{
 			Class.forName(driver);
 			Connection con= DriverManager.getConnection(url, usuario, contraseña);
@@ -559,12 +561,21 @@ public class DataLayer {
 			ResultSet rs=smt.executeQuery(sql);
 			while(rs.next()){
 
-				result+="<tr><td><a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> <a href=\""+actualizar+"?id="+rs.getString(1)+"\">E</a><a href=\""+acceso+"?id="+rs.getString(1)+"\">A</a></td>";
+				result+="<tr><td>" +
+						"<a href=\""+eliminar+"?id="+rs.getString(1)+"\">X</a> " +
+						"<a href=\""+acceder+"?id="+rs.getString(1)+"\">AC</a> " +
+						"<a href=\""+medir+"?id="+rs.getString(1)+"\">M</a> " +
+						"<a href=\""+asignar+"?id="+rs.getString(1)+"\">A</a> " +
+						"<a href=\""+hitos+"?id="+rs.getString(1)+"\">H</a> " +
+						"<a href=\""+riesgos+"?id="+rs.getString(1)+"\">R</a> " +
+						"</td>";
 				for(int i =1;i<indices;i++){
 					result += "<td>"+rs.getString(i+1)+"</td>";
 				}
 				result+="</tr>";
-			}
+				}
+				
+				
 			rs.close();
 			smt.close();
 			con.close();
@@ -606,5 +617,4 @@ public class DataLayer {
 		}
 		return result;
 	}
-	
 }

@@ -73,9 +73,9 @@ public class Task {
 		this.tipo = tipo;
 	}
 	public String getCosteFinal() {
-		float costeCantidad= Float.valueOf(cantidad);
+		float costeF= Float.valueOf(cantidad)*Float.valueOf(precioUnidad);
 		float costeAsignaciones = Float.valueOf(asignaciones);
-		float coste= costeCantidad+costeAsignaciones;
+		float coste= costeF+costeAsignaciones;
 		costeFinal=String.valueOf(coste);
 		return costeFinal;
 	}

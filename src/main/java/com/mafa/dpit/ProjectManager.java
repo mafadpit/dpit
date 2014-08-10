@@ -216,10 +216,14 @@ public class ProjectManager {
 		int indices=7;
 		String condicion="\"partidaSuperior\" ='"+ id+"' and categoria='"+categoria+"'";
 		String eliminar="eliminarPartida.html";
-		String actualizar="accesoPartida.html";
+		String acceder="accesoPartida.html";
+		String medir="medirPartida.html";
+		String asignar="asignarPartida.html";
+		String hitos="hitosPartida.html";
+		String riesgos="riesgosPartida.html";
 		DataLayer data= new DataLayer();
 		try {
-			result+=data.showList(tabla, columnas, indices, condicion, eliminar, actualizar,"");
+			result+=data.showListTask(tabla, columnas, indices, condicion, eliminar, acceder,medir,asignar,hitos,riesgos);
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}
@@ -285,6 +289,46 @@ public class ProjectManager {
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}
+		
+	}
+	public void updateTask(Task t) throws ControllerException {
+		DataLayer data= new DataLayer();
+		String[] atributos= new String[14];
+		String[] valores= new String[14];
+		atributos[0]="codigo";
+		atributos[1]="definicion";
+		atributos[2]="unidad";
+		atributos[3]="cantidad";
+		atributos[4]="\"precioUnidad\"";
+		atributos[5]="tipo";
+		atributos[6]="\"costeFinal\"";
+		atributos[7]="\"partidaSuperior\"";
+		atributos[8]="categoria";
+		atributos[9]="estado";
+		atributos[10]="orden";
+		atributos[11]="colchon";
+		atributos[12]="asignaciones";
+		atributos[13]="\"costesDerivados\"";
+		valores[0]=t.getCodigo();
+		valores[1]=t.getDefinicion();
+		valores[2]=t.getUnidad();
+		valores[3]=t.getCantidad();
+		valores[4]=t.getPrecioUnidad();
+		valores[5]=t.getTipo();
+		valores[6]=t.getCosteFinal();
+		valores[7]=t.getPartidaSuperior();
+		valores[8]=t.getCategoria();
+		valores[9]=t.getEstado();
+		valores[10]=t.getOrden();
+		valores[11]=t.getColchon();
+		valores[12]=t.getAsignaciones();
+		valores[13]=t.getCostesDerivados();
+		try {
+			data.update("partidas", atributos, valores, t.getCodigo());
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
 		
 	}
 

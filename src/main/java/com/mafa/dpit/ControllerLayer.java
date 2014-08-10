@@ -1002,7 +1002,7 @@ public class ControllerLayer {
 		u = um.findUser(user);
 		model.addAttribute("nombre", u.getNombreCompleto());
 		model.addAttribute("rol", u.getRol());
-		model.addAttribute("partidas", pm.showTaskCategory(id));
+		model.addAttribute("partidas", pm.showTask("0",id));
 		 cat=pm.findCategory(id);
 		 sesion.setAttribute("Tcategoria",cat.getCodigo() );
 		 sesion.setAttribute("Tpartida", "0");
@@ -1069,7 +1069,7 @@ public class ControllerLayer {
 		model.addAttribute("nombre", u.getNombreCompleto());
 		model.addAttribute("rol", u.getRol());
 		//Creamos la partida nueva
-		t=new Task(pm.maxCode("partidas"),definicion,unidad,cantidad,precioUnidad,tipo,"1","1","1","1","1","1",tpartida,tcategoria);
+		t=new Task(pm.maxCode("partidas"),definicion,unidad,cantidad,precioUnidad,tipo,"0","0","0","0","0","0",tpartida,tcategoria);
 		pm.createTask(t);
 		cat=pm.findCategory(tcategoria);
 		model.addAttribute("partidas", pm.showTask(t.getPartidaSuperior(),tcategoria));
@@ -1137,6 +1137,88 @@ public class ControllerLayer {
 	}
 	 return "accesoPartida";
 	 
+ }
+ @RequestMapping("medirPartida")
+ public String medirPartida(String id,ModelMap model){
+	 try {
+		String user= (String) sesion.getAttribute("user");
+	 	String rol= (String)sesion.getAttribute("rol");
+	 	UserManager um= new UserManager();
+		User u= um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol",rol);
+		sesion.setAttribute("tpartida", id);
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	} 
+	 return "medirPartida";
+ }
+ @RequestMapping("medirPartidaA")
+ public String medirPartidaA(String fde,ModelMap model){
+	 try {
+		String user= (String) sesion.getAttribute("user");
+	 	String rol= (String)sesion.getAttribute("rol");
+	 	UserManager um= new UserManager();
+		User u= um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol",rol);
+		model.addAttribute("fde",fde);
+		
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	} 
+	 return "medirPartidaA";
+ }
+ @RequestMapping("medirPartidaB")
+ public String medirPartidaB(String pfa,ModelMap model){
+	 String actual;
+	 String user=(String)sesion.getAttribute("user");
+	 String tcategoria=(String)sesion.getAttribute("Tcategoria");
+	 String id=(String)sesion.getAttribute("tpartida");
+	 UserManager um= new UserManager();
+	 ProjectManager pm= new ProjectManager();
+	 User u;
+	 Task t;
+	 Category cat;
+	 float total;
+	try {
+		u = um.findUser(user);
+		t=pm.findTask(id);
+		t.setCantidad(pfa);
+		total=(Float.parseFloat(t.getCantidad())*Float.parseFloat(t.getPrecioUnidad()));
+		t.setCosteFinal(""+total);
+		pm.updateTask(t);
+		
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		model.addAttribute("partidas", pm.showTask(t.getPartidaSuperior(),tcategoria));
+		t=pm.findTask(id);
+		sesion.setAttribute("Tpartida",id);
+		
+		cat=pm.findCategory(tcategoria);
+		model.addAttribute("home","<a href=\"definirTareas.html?id="+cat.getCodigo_proyecto()+"\">Categorias</a>");	
+		model.addAttribute("categorias","<a href=\"accesoCategoria.html?id="+cat.getCodigo()+"\">"+cat.getNombre()+"</a>");	
+		actual=t.getDefinicion();
+		if(t.getPartidaSuperior().compareToIgnoreCase("0")!=0){
+			t=pm.findTask(t.getPartidaSuperior());
+			model.addAttribute("partidaSup","<a href=\"accesoPartida.html?id="+ t.getCodigo()+"\">Subir Nivel</a> // "+actual);
+		}else{
+			model.addAttribute("partidaSup",actual);
+				
+		}
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	}
+	return "accesoPartida";
  }
 }
 
