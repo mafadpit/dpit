@@ -377,4 +377,57 @@ public class ProjectManager {
 		}
 		
 	}
+	public void recalcular(String id) throws ControllerException{
+		ProjectManager pm= new ProjectManager();
+		DataLayer data= new DataLayer();
+		float asignaciones=0;
+		try {
+			Task t= pm.findTask(id);
+			asignaciones=data.calcular("select coste from asignaciones where partida='"+id+"'");
+			t.setAsignaciones(String.valueOf(asignaciones));
+			t.calcular();
+			pm.updateTask(t);
+			
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());		}
+		
+	}
+	public Allocation findAllocation(Allocation a) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try {
+			return data.findAllocation("select * from asignaciones where codigo='"+a.getCodigo()+"'");
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+	}
+	public void updateAllocation(Allocation ac)throws ControllerException {
+		DataLayer data= new DataLayer();
+		String[] atributos= new String[9];
+		String[] valores= new String[9];
+		
+		atributos[0]="codigo";
+		atributos[1]="partida";
+		atributos[2]="recurso";
+		atributos[3]="cantidad";
+		atributos[4]="horas";
+		atributos[5]="jornada";
+		atributos[6]="tipo";
+		atributos[7]="coste";
+		atributos[8]="nombre";
+		valores[0]=ac.getCodigo();
+		valores[1]=ac.getPartida();
+		valores[2]=ac.getRecurso();
+		valores[3]=ac.getCantidad();
+		valores[4]=ac.getHoras();
+		valores[5]=ac.getJornada();
+		valores[6]=ac.getTipo();
+		valores[7]=ac.getCoste();
+		valores[8]=ac.getNombre();
+		try {
+			data.update("asignaciones", atributos, valores, ac.getCodigo());
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
 }

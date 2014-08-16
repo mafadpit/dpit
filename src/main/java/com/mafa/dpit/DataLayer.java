@@ -685,8 +685,8 @@ public class DataLayer {
 			Statement smt=con.createStatement();
 			System.out.println(sql);
 			ResultSet rs=smt.executeQuery(sql);
-			rs.next();
-			result = new Allocation(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9));
+			while(rs.next())
+				result = new Allocation(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9));
 			rs.close();
 			smt.close();
 			con.close();
@@ -698,5 +698,29 @@ public class DataLayer {
 			
 		}
 		return result;
+	}
+	public float calcular(String sql) throws AccessException{
+		float resultado=0;
+		
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();
+			System.out.println(sql);
+			ResultSet rs=smt.executeQuery(sql);
+			while(rs.next()){
+			resultado += Float.valueOf(rs.getString(1));
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+			throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return resultado;
 	}
 }

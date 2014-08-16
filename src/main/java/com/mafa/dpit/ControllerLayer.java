@@ -1286,8 +1286,9 @@ public String nuevaAsignacion(String tipo,ModelMap model){
 	return "nuevaAsignacion";
 }
 @RequestMapping("guardarAsignacion")
-public String guardarAsignacion(String id,ModelMap model){
+public String guardarAsignacion(String id,String cantidad,String horas,String jornada,ModelMap model){
 	String user=(String) sesion.getAttribute("user");
+	String idp;
 	UserManager um= new UserManager();
 	ProjectManager pm= new ProjectManager();
 	ResourceManager rm= new ResourceManager();
@@ -1298,9 +1299,14 @@ public String guardarAsignacion(String id,ModelMap model){
 	Material m;
 	Allocation a=null;
 	float coste;
-	int cantidad=1,horas=8,jornada=8;
+	int c=1,h=8,j=8;
+	if(cantidad!=null){
+		c=Integer.parseInt(cantidad);
+		h=Integer.parseInt(horas);
+		j=Integer.parseInt(jornada);
+	}
 	try {
-		String idp= (String)sesion.getAttribute("idp");
+		idp= (String)sesion.getAttribute("idp");
 		String tipo= (String)sesion.getAttribute("tipop");
 		model.addAttribute("id", idp);
 		u = um.findUser(user);
@@ -1308,33 +1314,47 @@ public String guardarAsignacion(String id,ModelMap model){
 		model.addAttribute("rol", u.getRol());
 	if(tipo.compareToIgnoreCase("trabajador")==0){
 		w= rm.accessWorker(id);
-		coste=Float.parseFloat(w.getCostemediohora())*cantidad*horas*jornada;
+		System.out.println(w.getCodigo()+"id="+id);
+		coste=Float.parseFloat(w.getCostemediohora())*c*j*(h/j);
 		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),w.getCategoria());
 	}
 	if(tipo.compareToIgnoreCase("soporte")==0){
 		s= rm.accessSupport(id,user);
-		coste=Float.parseFloat(s.getCostemediohora())*cantidad*horas*jornada;
+		coste=Float.parseFloat(s.getCostemediohora())*c*j*(h/j);
 		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),s.getNombre());
 	}
 	if(tipo.compareToIgnoreCase("instalacion")==0){
 		i= rm.accessInstallation(id, user);
-		coste=Float.parseFloat(i.getCostemediohora())*cantidad*horas*jornada;
+		coste=Float.parseFloat(i.getCostemediohora())*c*j*(h/j);
 		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),i.getNombre());
 	}
 	if(tipo.compareToIgnoreCase("material")==0){
 		m= rm.accessMaterial(id, user);
-		coste=Float.parseFloat(m.getPrecio())*cantidad*horas*jornada;
+		coste=Float.parseFloat(m.getPrecio())*c*j*(h/j);
 		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),m.getNombre());
 	}
-		
-		pm.createAllocation(idp, a);
+		Allocation ac= pm.findAllocation(a);
+		if(cantidad!=null){
+			if(ac!=null ){
+				pm.updateAllocation(ac);
+			}else{
+				pm.createAllocation(idp, a);
+			}
+		}
+		pm.recalcular(idp);
 		
 	} catch (ControllerException e) {
 		ModelAndView modelE = new ModelAndView();
 		modelE.setViewName("error");
 		return "error";
 	}
-	model.addAttribute("asig", "Asignado el recurso a la partida actual");
+	model.addAttribute("asig", "<form action=\"guardarAsignacion.html\" method=\"POST\">" +
+			"Partida:<input type=\"text\" name=\"id\" value=" +id+" readOnly>"+
+			"Cantidad:<input type=\"text\" name=\"cantidad\" value=1 >" +
+			"Horas Totales:<input type=\"text\" name=\"horas\" value=8 >" +
+			"Jornada Diaria:<input type=\"text\" name=\"jornada\" value=8 >" +
+			"<input type=\"Submit\" value=\"Guardar\">" +
+			"</form>");
 	return "nuevaAsignacion";
 	//PODER ELIMINAR
 }
@@ -1351,6 +1371,8 @@ public String eliminarAsignacion(String id,ModelMap model){
 		model.addAttribute("nombre", u.getNombreCompleto());
 		model.addAttribute("rol", u.getRol());
 		pm.deleteAllocation(id);
+		pm.recalcular(idp);
+		
 	} catch (ControllerException e) {
 		ModelAndView modelE = new ModelAndView();
 		modelE.setViewName("error");
