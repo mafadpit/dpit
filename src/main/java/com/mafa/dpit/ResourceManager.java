@@ -477,5 +477,52 @@ public class ResourceManager {
 			return null;
 		}
 	}
-
+	public Object showWorkersA(String user) throws ControllerException {
+		DataLayer data= new DataLayer();
+		String result="<table>";
+		result+="<tr><td>Opciones</td><td>Trabajador</td><td>Productividad</td><td>Coste Hora</td></tr>";
+		try {
+			result+=data.showListA("\"Trabajadores\"", "codigo,categoria,productividad,costemediohora", 4 , "guardarAsignacion.html",user);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public Object showMaterialA(String user) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String result="<table>";
+		result+="<tr><td>Opciones</td><td>Material</td><td>Utilidad</td><td>Coste Unidad</td></tr>";
+		try {
+			result+=data.showListA("materiales", "codigo,nombre,utilidad,precio", 4 , "guardarAsignacion.html",user);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public Object showSupportA(String user) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String result="<table>";
+		result+="<tr><td>Opciones</td><td>Soporte</td><td>Utilidad</td><td>Coste Hora</td></tr>";
+		try {
+			result+=data.showListA("soportes", "codigo,nombre,productividad,costemediohora", 4 , "guardarAsignacion.html",user);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public Object showInstallationsA(String user) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String result="<table>";
+		result+="<tr><td>Opciones</td><td>Instalacion</td><td>Tipo</td><td>Coste Hora</td></tr>";
+		try {
+			result+=data.showListA("instalaciones", "codigo,nombre,tipo,costemediohora", 4 , "guardarAsignacion.html",user);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
 }

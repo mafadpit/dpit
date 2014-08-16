@@ -2,9 +2,12 @@ package com.mafa.dpit;
 
 import com.mafa.dpit.excepciones.AccessException;
 import com.mafa.dpit.excepciones.ControllerException;
+import com.mafa.dpit.util.Allocation;
 import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Project;
+import com.mafa.dpit.util.Support;
 import com.mafa.dpit.util.Task;
+import com.mafa.dpit.util.Worker;
 
 public class ProjectManager {
 	
@@ -331,5 +334,47 @@ public class ProjectManager {
 		
 		
 	}
-
+	
+	public void createAllocation(String id,Allocation a) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String[] valores= new String[9];
+		try {
+		valores[0]=a.getCodigo();
+		valores[1]=a.getPartida();
+		valores[2]=a.getRecurso();
+		valores[3]=a.getCantidad();
+		valores[4]=a.getHoras();
+		valores[5]=a.getJornada();
+		valores[6]=a.getTipo();
+		valores[7]=a.getCoste();
+		valores[8]=a.getNombre();
+		
+		data.create("asignaciones", valores);
+		
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public String showAllocation(String id,String tipo) throws ControllerException{
+		String result="<table><tr><td></td><td>Recurso</td><td>Cantidad</td><td>Días</td><td>Jornadas</td><td>Tipo</td><td>Coste</td></tr>";
+		DataLayer data= new DataLayer();
+		try {
+			result+=data.showListAllocation("Select codigo,nombre,cantidad,horas,jornada,tipo,coste from asignaciones where partida=? and tipo= '"+tipo+"'",id, 7, "eliminarAsignacion.html");
+		} catch (AccessException e) {
+			System.out.println(e.getMsg());
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public void deleteAllocation(String id) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try{
+			data.delete("asignaciones", "codigo", id);
+		}catch(AccessException e){
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
 }

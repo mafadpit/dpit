@@ -617,4 +617,86 @@ public class DataLayer {
 		}
 		return result;
 	}
+	
+	public String showListA(String tabla, String columnas, int indices,
+			String asignacion,String user) throws AccessException{
+		String sql="select "+columnas+" from "+tabla+ " where codigo_user= '"+user+"'";
+		String result="";
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();
+			System.out.println(sql);
+			ResultSet rs= smt.executeQuery(sql);
+			while(rs.next()){
+				result+="<tr><td><a href=\""+asignacion+"?id="+rs.getString(1)+"\">A</a></td>";
+				for(int i =1;i<indices;i++){
+					result += "<td>"+rs.getString(i+1)+"</td>";
+				}
+				result+="</tr>";
+			}
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
+	public String showListAllocation(String sql, String id, int indices,
+			String asignacion) throws AccessException{
+			String result="";
+			try{
+				Class.forName(driver);
+				Connection con= DriverManager.getConnection(url, usuario, contraseña);
+				PreparedStatement smt=con.prepareStatement(sql);
+				smt.setString(1,id);
+				System.out.println(sql);
+				ResultSet rs=smt.executeQuery();
+				while(rs.next()){
+
+					result+="<tr><td>(<a href=\""+asignacion+"?id="+rs.getString(1)+"\">X</a>)</td>";
+					for(int i =1;i<indices;i++){
+						result += "<td>"+rs.getString(i+1)+"</td>";
+					}
+					result+="</tr>";
+				}
+				rs.close();
+				smt.close();
+				con.close();
+				
+			}catch(ClassNotFoundException e){
+					throw new AccessException("No ha detectado el Driver");
+			}catch(SQLException ee){
+				throw new AccessException("Fallo al conectar con la BBDD");
+				
+			}
+			return result;
+		}
+	public Allocation findAllocation(String sql)throws AccessException {
+		Allocation result=null;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();
+			System.out.println(sql);
+			ResultSet rs=smt.executeQuery(sql);
+			rs.next();
+			result = new Allocation(rs.getString(1), rs.getString(2),rs.getString(3), rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9));
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+			throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
 }

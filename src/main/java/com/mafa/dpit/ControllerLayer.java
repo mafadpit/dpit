@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mafa.dpit.excepciones.ControllerException;
+import com.mafa.dpit.util.Allocation;
 import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Customer;
 import com.mafa.dpit.util.Installation;
@@ -33,6 +34,7 @@ import com.mafa.dpit.util.Worker;
 public class ControllerLayer {
 	
 	HttpSession sesion;
+	
 	@RequestMapping("home")
 	public String home(Model model) {
 		try{
@@ -1220,6 +1222,143 @@ public class ControllerLayer {
 	}
 	return "accesoPartida";
  }
+ @RequestMapping("asignarPartida")
+ public String asignarPartida(String id,ModelMap model){
+	 try {
+		String user= (String) sesion.getAttribute("user");
+	 	String rol= (String)sesion.getAttribute("rol");
+	 	UserManager um= new UserManager();
+	 	ResourceManager rm= new ResourceManager();
+		User u= um.findUser(user);
+		ProjectManager pm= new ProjectManager();
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol",rol);
+		model.addAttribute("id", id);
+		model.addAttribute("trabajadores", pm.showAllocation(id,"trabajador"));
+		model.addAttribute("materiales", pm.showAllocation(id,"material"));
+		model.addAttribute("soportes", pm.showAllocation(id,"soporte"));
+		model.addAttribute("instalaciones", pm.showAllocation(id,"instalacion"));
+		sesion.setAttribute("idp", id); // id de la partida
+		
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		System.out.println(e.getMsg());
+		return "error";
+	} 
+	 return "asignarPartida";
+ }
+@RequestMapping("nuevaAsignacion")
+public String nuevaAsignacion(String tipo,ModelMap model){
+	String user=(String) sesion.getAttribute("user");
+	UserManager um= new UserManager();
+	ProjectManager pm= new ProjectManager();
+	ResourceManager rm= new ResourceManager();
+	User u;
+	try {
+		String id= (String) sesion.getAttribute("idp");
+		u = um.findUser(user);
+		String rol=u.getRol();
+		if(tipo!=null){
+			if(tipo.compareToIgnoreCase("t")==0){
+				model.addAttribute("recursos",rm.showWorkersA(user)); 
+				sesion.setAttribute("tipop", "trabajador");
+			}
+			if(tipo.compareToIgnoreCase("s")==0){
+				model.addAttribute("recursos", rm.showSupportA(user));
+				sesion.setAttribute("tipop", "soporte");
+			}
+			if(tipo.compareToIgnoreCase("m")==0){
+				model.addAttribute("recursos", rm.showMaterialA(user));
+				sesion.setAttribute("tipop", "material");
+			}
+			if(tipo.compareToIgnoreCase("i")==0){
+				model.addAttribute("recursos", rm.showInstallationsA(user));
+				sesion.setAttribute("tipop", "instalacion");
+			}
+		}
+		model.addAttribute("id",id);
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	return "nuevaAsignacion";
 }
-
-
+@RequestMapping("guardarAsignacion")
+public String guardarAsignacion(String id,ModelMap model){
+	String user=(String) sesion.getAttribute("user");
+	UserManager um= new UserManager();
+	ProjectManager pm= new ProjectManager();
+	ResourceManager rm= new ResourceManager();
+	User u;
+	Worker w;
+	Support s;
+	Installation i;
+	Material m;
+	Allocation a=null;
+	float coste;
+	int cantidad=1,horas=8,jornada=8;
+	try {
+		String idp= (String)sesion.getAttribute("idp");
+		String tipo= (String)sesion.getAttribute("tipop");
+		model.addAttribute("id", idp);
+		u = um.findUser(user);
+		model.addAttribute("user", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+	if(tipo.compareToIgnoreCase("trabajador")==0){
+		w= rm.accessWorker(id);
+		coste=Float.parseFloat(w.getCostemediohora())*cantidad*horas*jornada;
+		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),w.getCategoria());
+	}
+	if(tipo.compareToIgnoreCase("soporte")==0){
+		s= rm.accessSupport(id,user);
+		coste=Float.parseFloat(s.getCostemediohora())*cantidad*horas*jornada;
+		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),s.getNombre());
+	}
+	if(tipo.compareToIgnoreCase("instalacion")==0){
+		i= rm.accessInstallation(id, user);
+		coste=Float.parseFloat(i.getCostemediohora())*cantidad*horas*jornada;
+		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),i.getNombre());
+	}
+	if(tipo.compareToIgnoreCase("material")==0){
+		m= rm.accessMaterial(id, user);
+		coste=Float.parseFloat(m.getPrecio())*cantidad*horas*jornada;
+		a= new Allocation(pm.maxCode("asignaciones"),idp,id,String.valueOf(cantidad),String.valueOf(horas), String.valueOf(jornada), tipo,String.valueOf(coste),m.getNombre());
+	}
+		
+		pm.createAllocation(idp, a);
+		
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	model.addAttribute("asig", "Asignado el recurso a la partida actual");
+	return "nuevaAsignacion";
+	//PODER ELIMINAR
+}
+@RequestMapping("eliminarAsignacion")
+public String eliminarAsignacion(String id,ModelMap model){
+	String user= (String) sesion.getAttribute("user");
+	String idp=(String) sesion.getAttribute("idp");
+	UserManager um= new UserManager();
+	ResourceManager rm= new ResourceManager();
+	ProjectManager pm= new ProjectManager();
+	
+	try {
+		User u= um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		pm.deleteAllocation(id);
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	
+	model.addAttribute("volver", idp);
+	return "eliminarAsignacion";
+	
+}
+}
