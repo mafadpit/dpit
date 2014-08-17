@@ -723,4 +723,34 @@ public class DataLayer {
 		}
 		return resultado;
 	}
+	public String showListE(String tabla,String columnas,int indice,String condicion,String eliminar) throws AccessException{
+		String result="";
+		String sql="select "+columnas+" from "+tabla+" where "+condicion;
+		try{
+			Class.forName(driver);
+			Connection con= DriverManager.getConnection(url, usuario, contraseña);
+			Statement smt=con.createStatement();			
+			ResultSet rs=smt.executeQuery(sql);
+			while(rs.next()){
+				
+				for(int i=1;i<=indice;i++)
+					if(i==1){
+						result+="<tr><td>(<a href=\""+eliminar+"?id="+rs.getString(i)+"\">X</a>)</td>";
+					}else{
+					result+="<td>"+rs.getString(i)+"</td>";
+					}
+			}
+			result+="</tr>";
+			rs.close();
+			smt.close();
+			con.close();
+			
+		}catch(ClassNotFoundException e){
+				throw new AccessException("No ha detectado el Driver");
+		}catch(SQLException ee){
+			throw new AccessException("Fallo al conectar con la BBDD");
+			
+		}
+		return result;
+	}
 }

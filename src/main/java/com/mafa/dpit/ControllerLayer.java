@@ -2,8 +2,6 @@ package com.mafa.dpit;
 
 
 import java.util.Calendar;
-import java.util.Date;
-
 import javax.servlet.http.HttpSession;
 
 
@@ -20,6 +18,7 @@ import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Customer;
 import com.mafa.dpit.util.Installation;
 import com.mafa.dpit.util.Material;
+import com.mafa.dpit.util.Milestone;
 import com.mafa.dpit.util.Project;
 import com.mafa.dpit.util.Receipt;
 import com.mafa.dpit.util.Support;
@@ -34,6 +33,7 @@ import com.mafa.dpit.util.Worker;
 public class ControllerLayer {
 	
 	HttpSession sesion;
+	
 	
 	@RequestMapping("home")
 	public String home(Model model) {
@@ -169,7 +169,6 @@ public class ControllerLayer {
 	@RequestMapping("nuevoProyecto")
 	public String nuevoProyecto(ModelMap model){
 		UserManager um= new UserManager();
-		ProjectManager pm= new ProjectManager();
 		try{
 			String user= (String)sesion.getAttribute("user");
 			String rol=(String)sesion.getAttribute("rol");
@@ -1339,7 +1338,9 @@ public String guardarAsignacion(String id,String cantidad,String horas,String jo
 				pm.updateAllocation(ac);
 			}else{
 				pm.createAllocation(idp, a);
+				
 			}
+			model.addAttribute("estado", "Guardado");
 		}
 		pm.recalcular(idp);
 		
@@ -1382,5 +1383,48 @@ public String eliminarAsignacion(String id,ModelMap model){
 	model.addAttribute("volver", idp);
 	return "eliminarAsignacion";
 	
+}
+@RequestMapping("hitosPartida")
+public String hitosPartida(String id,String nombre,String descripcion,String tipo,ModelMap model){
+	String user=(String)sesion.getAttribute("user");
+	UserManager um= new UserManager();
+	ProjectManager pm= new ProjectManager();
+	String idp=id,codigo;
+	try {
+		if(idp==null){
+			idp=(String)sesion.getAttribute("idp");
+		}else{
+			sesion.setAttribute("idp", id);
+		}
+		User u= um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		model.addAttribute("id", idp);
+		if(nombre!=null){
+			codigo = pm.maxCode("hitos");
+			Milestone m= new Milestone(codigo,nombre,descripcion,tipo,"0","0",idp);
+			pm.createMilestone(m);
+		}
+		model.addAttribute("hitos", pm.showMilestones(idp) );
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	return "hitosPartida";
+}
+@RequestMapping("eliminarHito")
+public String eliminarHito(String id,ModelMap model){
+	ProjectManager pm= new ProjectManager();
+	try{
+		// Falta usuario y rol
+	pm.deleteMilestone(id);
+	model.addAttribute("id", (String)sesion.getAttribute("idp"));
+	}catch(ControllerException e){
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	return "eliminarHito";
 }
 }

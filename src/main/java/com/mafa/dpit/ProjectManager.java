@@ -4,6 +4,7 @@ import com.mafa.dpit.excepciones.AccessException;
 import com.mafa.dpit.excepciones.ControllerException;
 import com.mafa.dpit.util.Allocation;
 import com.mafa.dpit.util.Category;
+import com.mafa.dpit.util.Milestone;
 import com.mafa.dpit.util.Project;
 import com.mafa.dpit.util.Support;
 import com.mafa.dpit.util.Task;
@@ -425,6 +426,51 @@ public class ProjectManager {
 		valores[8]=ac.getNombre();
 		try {
 			data.update("asignaciones", atributos, valores, ac.getCodigo());
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public String showMilestones(String id) throws ControllerException{
+		DataLayer data= new DataLayer();
+		String tabla="hitos";
+		String columnas="codigo,nombre,descripcion,tipo,partida";
+		int indice=4;
+		String condicion="partida='"+id+"'";
+		String eliminar="eliminarHito.html";
+		String result="<table><tr><td></td><td>Hito</td><td>Descripción</td><td>Tipo</td></tr>";
+		try {
+			
+			result+=data.showListE(tabla, columnas,indice, condicion, eliminar);
+			
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public void createMilestone(Milestone m) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try{
+			String[] valores= new String[7];
+			valores[0]=m.getCodigo();
+			valores[1]=m.getNombre();
+			valores[2]=m.getDescripcion();
+			valores[3]=m.getTipo();
+			valores[4]=m.getImporte();
+			valores[5]=m.getPorcentaje();
+			valores[6]=m.getPartida();
+			data.create("hitos", valores);
+			
+		}catch(AccessException e){
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public void deleteMilestone(String id) throws ControllerException{
+		DataLayer data=new DataLayer();
+		try {
+			data.delete("hitos", "codigo", id);
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}

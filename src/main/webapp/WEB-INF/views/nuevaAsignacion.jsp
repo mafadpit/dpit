@@ -18,6 +18,7 @@ ${nombre } // ${rol }
 <hr>
 ${recursos }
 ${asig }
+${estado }
 <hr>
 <a href="asignarPartida.html?id=${id }">Volver</a>
 </body>
