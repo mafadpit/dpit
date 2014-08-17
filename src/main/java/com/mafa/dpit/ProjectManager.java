@@ -6,6 +6,7 @@ import com.mafa.dpit.util.Allocation;
 import com.mafa.dpit.util.Category;
 import com.mafa.dpit.util.Milestone;
 import com.mafa.dpit.util.Project;
+import com.mafa.dpit.util.Risk;
 import com.mafa.dpit.util.Support;
 import com.mafa.dpit.util.Task;
 import com.mafa.dpit.util.Worker;
@@ -471,6 +472,53 @@ public class ProjectManager {
 		DataLayer data=new DataLayer();
 		try {
 			data.delete("hitos", "codigo", id);
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public void createRisk(Risk r) throws ControllerException{
+		DataLayer data= new DataLayer();
+		try{
+			String[] valores= new String[9];
+			valores[0]=r.getCodigo();
+			valores[1]=r.getNombre();
+			valores[2]=r.getEvento();
+			valores[3]=r.getSolucion();
+			valores[4]=r.getCoste();
+			valores[5]=r.getTiempo();
+			valores[6]=r.getImpacto();
+			valores[7]=r.getProbabilidad();
+			valores[8]=r.getPartida();
+			data.create("riesgos", valores);
+			
+		}catch(AccessException e){
+			throw new ControllerException(e.getMsg());
+		}
+		
+	}
+	public String showRisk(String idp) throws ControllerException {
+		DataLayer data= new DataLayer();
+		String tabla="riesgos";
+		String columnas="codigo,nombre,evento,impacto,probabilidad";
+		int indice=5;
+		String condicion="partida='"+idp+"'";
+		String eliminar="eliminarRiesgo.html";
+		String result="<table><tr><td></td><td>Riesgo</td><td>Evento</td><td>Impacto</td><td>probabilidad</td></tr>";
+		try {
+			
+			result+=data.showListE(tabla, columnas,indice, condicion, eliminar);
+			
+		} catch (AccessException e) {
+			throw new ControllerException(e.getMsg());
+		}
+		result+="</table>";
+		return result;
+	}
+	public void deleteRisk(String id) throws ControllerException{
+		DataLayer data=new DataLayer();
+		try {
+			data.delete("riesgos", "codigo", id);
 		} catch (AccessException e) {
 			throw new ControllerException(e.getMsg());
 		}

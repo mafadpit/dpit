@@ -21,6 +21,7 @@ import com.mafa.dpit.util.Material;
 import com.mafa.dpit.util.Milestone;
 import com.mafa.dpit.util.Project;
 import com.mafa.dpit.util.Receipt;
+import com.mafa.dpit.util.Risk;
 import com.mafa.dpit.util.Support;
 import com.mafa.dpit.util.Task;
 import com.mafa.dpit.util.User;
@@ -1426,5 +1427,48 @@ public String eliminarHito(String id,ModelMap model){
 		return "error";
 	}
 	return "eliminarHito";
+}
+@RequestMapping("riesgosPartida")
+public String riesgosPartida(String id,String nombre,String evento,String solucion,String coste,String tiempo,String impacto,String probabilidad,ModelMap model){
+	String user=(String)sesion.getAttribute("user");
+	UserManager um= new UserManager();
+	ProjectManager pm= new ProjectManager();
+	String idp=id,codigo;
+	try {
+		if(idp==null){
+			idp=(String)sesion.getAttribute("idp");
+		}else{
+			sesion.setAttribute("idp", id);
+		}
+		User u= um.findUser(user);
+		model.addAttribute("nombre", u.getNombreCompleto());
+		model.addAttribute("rol", u.getRol());
+		model.addAttribute("id", idp);
+		if(nombre!=null){
+			codigo = pm.maxCode("riesgos");
+			Risk r= new Risk(codigo,nombre,evento,solucion,coste,tiempo,impacto,probabilidad,idp);
+			pm.createRisk(r);
+		}
+		model.addAttribute("riesgos", pm.showRisk(idp) );
+	} catch (ControllerException e) {
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	return "riesgosPartida";
+}
+@RequestMapping("eliminarRiesgo")
+public String eliminarRiesgo(String id,ModelMap model){
+	ProjectManager pm= new ProjectManager();
+	try{
+		// Falta usuario y rol
+	pm.deleteRisk(id);
+	model.addAttribute("id", (String)sesion.getAttribute("idp"));
+	}catch(ControllerException e){
+		ModelAndView modelE = new ModelAndView();
+		modelE.setViewName("error");
+		return "error";
+	}
+	return "eliminarRiesgo";
 }
 }
